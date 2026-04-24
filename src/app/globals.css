@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+:root {
+  --background: #05050a;
+  --surface: #12101a;
+  --surface-hover: #1c1828;
+  --border: #2a253a;
+  --foreground: #ebeaef;
+  --foreground-muted: #9c98a8;
+  --primary: #d4af37;
+  --primary-hover: #f3e5ab;
+  --secondary: #5a3e85;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-border: var(--border);
+  --color-foreground: var(--foreground);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-secondary: var(--secondary);
+  --font-sans: var(--font-inter), Arial, sans-serif;
+  --font-heading: var(--font-outfit), Arial, sans-serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar for an elegant feel */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary);
+}
