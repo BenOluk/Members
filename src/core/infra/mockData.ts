@@ -174,175 +174,10 @@ export const mockUsers: User[] = [
 ];
 
 // ---------- Cursos ---------------------------------------------------------
+// Catálogo gerenciado pelo admin. Vazio por padrão — adicione via /admin/cursos.
+// Em produção: substituir por query ao Supabase.
 
-const lorem = 'Mergulhamos em conceitos profundos revelados pelos textos herméticos clássicos. As anotações e reflexões devem ser levadas à comunidade para expansão coletiva do conhecimento.';
-
-export const mockCourses: Course[] = [
-  {
-    id: 'course_1',
-    title: 'A Arquitetura da Sincronicidade',
-    subtitle: 'Onde Jung encontra o Kybalion',
-    description: 'Compreenda como a lógica e a magia se entrelaçam no tecido da realidade — e como você pode ler esse tecido.',
-    thumbnail: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=800&auto=format&fit=crop',
-    coverImage: 'https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?q=80&w=1920&auto=format&fit=crop',
-    categoryId: 'hermetismo',
-    instructorId: 'user_1',
-    tags: ['kybalion', 'jung', 'arquetipos'],
-    level: 'intermediario',
-    featured: true,
-    publishedAt: '2025-09-01T00:00:00Z',
-    totalEnrollments: 1842,
-    ratingAverage: 4.9,
-    ratingCount: 437,
-    modules: [
-      {
-        id: 'mod_1', title: 'Módulo 1: Fundamentos Herméticos', order: 1,
-        lessons: [
-          { id: 'lesson_1', title: 'Introdução ao Caos Ordenado', description: 'Uma visão geral de como perceber padrões onde outros veem acaso.', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', duration: 900, order: 1, resources: [{ id: 'r1', kind: 'pdf', title: 'Anotações da aula', url: '#', sizeBytes: 2_400_000 }], xpReward: 50 },
-          { id: 'lesson_2', title: 'As Leis do Kybalion na Prática', description: 'Aplicando o princípio do mentalismo ao dia a dia.',             videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', duration: 1200, order: 2, resources: [{ id: 'r2', kind: 'pdf', title: 'Mapa dos 7 princípios', url: '#', sizeBytes: 1_800_000 }], xpReward: 60 },
-          { id: 'lesson_3', title: 'O Princípio da Correspondência',  description: '"Como em cima, assim embaixo." Exemplos contemporâneos.',      videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', duration: 1080, order: 3, resources: [], xpReward: 60 },
-        ]
-      },
-      {
-        id: 'mod_2', title: 'Módulo 2: Astrologia Junguiana', order: 2,
-        lessons: [
-          { id: 'lesson_4', title: 'Arquétipos e o Zodíaco',           description: 'Os deuses interiores — o que cada signo quer de você.',        videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', duration: 1500, order: 1, resources: [{ id: 'r3', kind: 'audio', title: 'Meditação guiada', url: '#' }], xpReward: 80 },
-          { id: 'lesson_5', title: 'Sincronicidade como Linguagem',    description: 'Ler símbolos sem cair em superstição.',                         videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', duration: 1320, order: 2, resources: [], xpReward: 70 },
-        ]
-      }
-    ]
-  },
-  {
-    id: 'course_2',
-    title: 'High Thinking',
-    subtitle: 'Metodologia para pensar em sistemas',
-    description: 'Metodologia para superar autossabotagem intelectual e estruturar o pensamento em modelos robustos.',
-    thumbnail: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=800&auto=format&fit=crop',
-    coverImage: 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?q=80&w=1920&auto=format&fit=crop',
-    categoryId: 'high-thinking',
-    instructorId: 'user_1',
-    tags: ['mental-models', 'systems', 'foco'],
-    level: 'avancado',
-    featured: true,
-    publishedAt: '2025-10-14T00:00:00Z',
-    totalEnrollments: 978,
-    ratingAverage: 4.8,
-    ratingCount: 220,
-    modules: [
-      {
-        id: 'mod_3', title: 'Estruturação', order: 1,
-        lessons: [
-          { id: 'lesson_6', title: 'Modelos Mentais Complexos', description: 'Aprenda a pensar em sistemas, não em linhas.', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', duration: 1800, order: 1, resources: [], xpReward: 100 },
-          { id: 'lesson_7', title: 'Mapas de Causalidade',       description: 'Causa reversa, ciclos viciosos e virtuosos.',   videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', duration: 1500, order: 2, resources: [], xpReward: 90 },
-        ]
-      }
-    ]
-  },
-  {
-    id: 'course_3',
-    title: 'Engenharia de Prompts Hermética',
-    subtitle: 'IA como espelho, não como oráculo',
-    description: 'Prompts estruturados, context engineering e agentes aplicados à jornada intelectual.',
-    thumbnail: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=800&auto=format&fit=crop',
-    coverImage: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1920&auto=format&fit=crop',
-    categoryId: 'ia',
-    instructorId: 'user_1',
-    tags: ['ia', 'prompts', 'agentes'],
-    level: 'intermediario',
-    featured: true,
-    publishedAt: '2026-01-22T00:00:00Z',
-    totalEnrollments: 612,
-    ratingAverage: 4.95,
-    ratingCount: 98,
-    modules: [
-      {
-        id: 'mod_4', title: 'Fundamentos', order: 1,
-        lessons: [
-          { id: 'lesson_8', title: 'Por que prompt engineering virou context engineering', description: lorem, videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', duration: 1200, order: 1, resources: [], xpReward: 70 },
-          { id: 'lesson_9', title: 'System prompts como constituição',                       description: lorem, videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', duration: 1080, order: 2, resources: [], xpReward: 70 },
-        ]
-      }
-    ]
-  },
-  {
-    id: 'course_4',
-    title: 'Copywriting Arquetípico',
-    subtitle: 'Escrever do oculto',
-    description: 'Narrativa que toca o inconsciente coletivo sem manipular. Arquétipos aplicados à persuasão ética.',
-    thumbnail: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?q=80&w=800&auto=format&fit=crop',
-    coverImage: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?q=80&w=1920&auto=format&fit=crop',
-    categoryId: 'copy',
-    instructorId: 'user_1',
-    tags: ['copy', 'narrativa', 'arquetipos'],
-    level: 'introdutorio',
-    featured: false,
-    publishedAt: '2025-07-01T00:00:00Z',
-    totalEnrollments: 455,
-    ratingAverage: 4.7,
-    ratingCount: 132,
-    modules: [
-      {
-        id: 'mod_5', title: 'Arquétipos na Prática', order: 1,
-        lessons: [
-          { id: 'lesson_10', title: 'O Mago, o Sábio e o Criador', description: lorem, videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', duration: 1080, order: 1, resources: [], xpReward: 60 },
-          { id: 'lesson_11', title: 'Voz autêntica vs. persona',    description: lorem, videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', duration: 960,  order: 2, resources: [], xpReward: 50 },
-        ]
-      }
-    ]
-  },
-  {
-    id: 'course_5',
-    title: 'Mapa Natal para Adultos',
-    subtitle: 'Astrologia sem neura, sem místico barato',
-    description: 'Leitura profunda de mapa natal via psicologia profunda e observação empírica.',
-    thumbnail: 'https://images.unsplash.com/photo-1502481851512-e9e2529bfbf9?q=80&w=800&auto=format&fit=crop',
-    coverImage: 'https://images.unsplash.com/photo-1502481851512-e9e2529bfbf9?q=80&w=1920&auto=format&fit=crop',
-    categoryId: 'astrologia',
-    instructorId: 'user_1',
-    tags: ['astrologia', 'mapa-natal', 'jung'],
-    level: 'intermediario',
-    featured: false,
-    publishedAt: '2025-12-05T00:00:00Z',
-    totalEnrollments: 823,
-    ratingAverage: 4.85,
-    ratingCount: 201,
-    modules: [
-      {
-        id: 'mod_6', title: 'Os Planetas Pessoais', order: 1,
-        lessons: [
-          { id: 'lesson_12', title: 'Sol, Lua e Ascendente', description: lorem, videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', duration: 1500, order: 1, resources: [], xpReward: 80 },
-          { id: 'lesson_13', title: 'Mercúrio e Vênus',       description: lorem, videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', duration: 1320, order: 2, resources: [], xpReward: 70 },
-        ]
-      }
-    ]
-  },
-  {
-    id: 'course_6',
-    title: 'Mente Livre',
-    subtitle: 'Desescolarização e autonomia intelectual',
-    description: 'Como estudar por conta própria sem cair em dilettantismo nem em dogma acadêmico.',
-    thumbnail: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?q=80&w=800&auto=format&fit=crop',
-    coverImage: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?q=80&w=1920&auto=format&fit=crop',
-    categoryId: 'livre',
-    instructorId: 'user_1',
-    tags: ['autodidata', 'leitura', 'metodo'],
-    level: 'introdutorio',
-    featured: false,
-    publishedAt: '2025-04-18T00:00:00Z',
-    totalEnrollments: 1340,
-    ratingAverage: 4.8,
-    ratingCount: 388,
-    modules: [
-      {
-        id: 'mod_7', title: 'Método', order: 1,
-        lessons: [
-          { id: 'lesson_14', title: 'Leitura estrutural vs. leitura informativa', description: lorem, videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', duration: 1080, order: 1, resources: [], xpReward: 60 },
-          { id: 'lesson_15', title: 'Notas Zettelkasten, na prática',             description: lorem, videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', duration: 1200, order: 2, resources: [], xpReward: 60 },
-        ]
-      }
-    ]
-  },
-];
+export let mockCourses: Course[] = [];
 
 // ---------- Spaces (Circle-style) -----------------------------------------
 
@@ -468,13 +303,8 @@ export const mockNotifications: AppNotification[] = [
 ];
 
 // ---------- Matrículas + Certificados ------------------------------------
+// Em produção: gerenciados via Stripe webhook → Supabase.
 
-export const mockEnrollments: Enrollment[] = [
-  { id: 'e_1', userId: 'user_1', courseId: 'course_1', enrolledAt: '2025-09-02T00:00:00Z', lastWatchedLessonId: 'lesson_5', lastWatchedAt: hoursAgo(10), completedAt: daysAgo(5) },
-  { id: 'e_2', userId: 'user_1', courseId: 'course_2', enrolledAt: '2025-10-15T00:00:00Z', lastWatchedLessonId: 'lesson_6', lastWatchedAt: hoursAgo(4) },
-  { id: 'e_3', userId: 'user_1', courseId: 'course_3', enrolledAt: '2026-01-23T00:00:00Z', lastWatchedLessonId: 'lesson_8', lastWatchedAt: hoursAgo(26) },
-];
+export let mockEnrollments: Enrollment[] = [];
 
-export const mockCertificates: Certificate[] = [
-  { id: 'cert_1', userId: 'user_1', courseId: 'course_1', issuedAt: daysAgo(5), credentialCode: 'PHM-2026-AB12CD' },
-];
+export let mockCertificates: Certificate[] = [];

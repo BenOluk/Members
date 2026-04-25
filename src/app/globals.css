@@ -1,15 +1,20 @@
 @import "tailwindcss";
 
 :root {
-  --background: #05050a;
-  --surface: #12101a;
-  --surface-hover: #1c1828;
-  --border: #2a253a;
-  --foreground: #ebeaef;
-  --foreground-muted: #9c98a8;
-  --primary: #d4af37;
-  --primary-hover: #f3e5ab;
-  --secondary: #5a3e85;
+  --background: #06060c;
+  --surface: #0f0d18;
+  --surface-hover: #181525;
+  --border: #211d2e;
+  --border-subtle: #16131f;
+  --foreground: #e8e6f0;
+  --foreground-muted: #7a7689;
+  --foreground-dim: #3e3a52;
+  --primary: #c9a227;
+  --primary-hover: #e8c75a;
+  --primary-dim: rgba(201, 162, 39, 0.12);
+  --secondary: #4e3578;
+  --secondary-hover: #6a49a3;
+  --accent-copper: #b5622a;
 }
 
 @theme inline {
@@ -17,13 +22,18 @@
   --color-surface: var(--surface);
   --color-surface-hover: var(--surface-hover);
   --color-border: var(--border);
+  --color-border-subtle: var(--border-subtle);
   --color-foreground: var(--foreground);
   --color-foreground-muted: var(--foreground-muted);
+  --color-foreground-dim: var(--foreground-dim);
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
+  --color-primary-dim: var(--primary-dim);
   --color-secondary: var(--secondary);
-  --font-sans: var(--font-inter), Arial, sans-serif;
-  --font-heading: var(--font-outfit), Arial, sans-serif;
+  --color-secondary-hover: var(--secondary-hover);
+  --color-accent-copper: var(--accent-copper);
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-heading: var(--font-outfit), system-ui, sans-serif;
 }
 
 body {
@@ -32,20 +42,31 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-size: 15px;
+  line-height: 1.6;
 }
 
-/* Custom scrollbar for an elegant feel */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--background); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--secondary); }
+
+/* Focus ring */
+:focus-visible {
+  outline: 1px solid var(--primary);
+  outline-offset: 2px;
 }
-::-webkit-scrollbar-track {
-  background: var(--background);
+
+/* Divider util */
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
 }
-::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 4px;
+
+/* Sanctum glyph animation */
+@keyframes glyph-pulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
 }
-::-webkit-scrollbar-thumb:hover {
-  background: var(--secondary);
-}
+.glyph { animation: glyph-pulse 4s ease-in-out infinite; }

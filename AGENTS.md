@@ -1,48 +1,57 @@
-# Build & Test
-- Dev server: `npm run dev`
-- Build production: `npm run build`
+# Sanctum — Build & Convenções
+
+## Build
+- Dev: `npm run dev`
+- Build: `npm run build`
 - Lint + typecheck: `npm run lint`
 
-# Architecture Overview
-Next.js 16 (App Router, React 19, TypeScript) aplicando Clean Architecture:
+## Arquitetura (Clean Architecture)
 
-- `src/core/domain/` — entidades, value objects, regras puras. **Não importa**
-  `next/*`, `react*` nem nada de `infra/`. Deve rodar em qualquer runtime.
-- `src/core/application/` — use cases que orquestram domain + infra. Única
-  camada que a UI pode chamar. Futuro: se tornar async trocando só o impl.
-- `src/core/infra/` — adaptadores (mock, futuramente DB/HTTP). Só a
-  `application/` importa daqui.
-- `src/app/` — rotas App Router. Server Components por padrão.
-- `src/components/` — componentes reutilizáveis; client só com `"use client"`
-  quando a interatividade for estritamente necessária.
-- `docs/specs/` — specs versionadas (§2 do compass_artifact).
+```
+src/core/domain/      → entidades puras (Course, User, Lesson...). Zero framework.
+src/core/application/ → use cases. Única camada que a UI consome.
+src/core/infra/       → mockData.ts (substituir por Supabase em prod)
+src/app/              → rotas App Router (Next.js). Server Components por padrão.
+src/components/       → componentes reutilizáveis.
+```
 
-Regra de ouro da Clean Arch neste repo:
-> **UI nunca importa `@/core/infra/*`.** Sempre via `@/core/application/*`.
-> **Domain nunca importa framework.**
+Regra: **UI nunca importa `@/core/infra/*`** — sempre via `application/`.
 
-# Conventions & Patterns
-- Estilo: TailwindCSS 4; paleta dark + dourado/cobre + roxo esotérico.
-  Variáveis em `globals.css` (`--background`, `--primary`, `--secondary`...).
-- Fontes: Outfit (`font-heading`) para display, Inter (`font-sans`) para body.
-- Copy pt-BR, vocabulário da marca: "trilha" (curso), "Ordem" (comunidade),
-  "Grão-Mestre" (admin), "Iniciado/Aprendiz/Adepto/Mestre/Grão-Mestre" (níveis),
-  "espaço" (subforum estilo Circle).
-- Server Components por default. Só adicione `"use client"` se houver state,
-  event handler, ou API de browser.
-- Tipos fortes: se um use case retorna um shape, tipá-lo no domain ou exportar
-  o tipo derivado. Zero `any`.
-- WOW effect visual: o MVP deve impressionar à primeira vista (hero com
-  gradiente escuro, carrosséis estilo Netflix, dourado em destaques).
+## Rotas principais
 
-# Gotchas
-- O MVP usa **mock** (`src/core/infra/mockData.ts`). Nunca importe isso direto
-  na UI — use `src/core/application/*`.
-- `getCurrentUser()` hoje devolve `mockUsers[0]` (Lucas). Troque **só** em
-  `application/session.ts` quando a auth real for plugada.
-- Não adicione libs sem necessidade. O stack atual cobre o MVP.
-- Nunca comite `node_modules`, `.next`, ou segredos.
+| Rota | Função |
+|------|--------|
+| `/` | Dashboard do aluno (cursos em andamento) |
+| `/catalog` | Vitrine pública — todos os cursos publicados, locked/unlocked |
+| `/course/[courseId]` | Player + sidebar de módulos. Gate de acesso integrado |
+| `/meus-cursos` | Painel do aluno — trilhas matriculadas + progresso |
+| `/admin` | Painel admin (só role=admin) |
+| `/admin/cursos` | CRUD de cursos |
+| `/admin/cursos/novo` | Criar nova trilha |
+| `/admin/cursos/[id]` | Editar trilha, módulos e aulas |
+| `/admin/alunos` | Lista de membros |
+| `/api/admin/cursos` | POST para criar curso |
+| `/api/admin/cursos/[id]` | PATCH/DELETE curso |
 
-# Docs
-- Spec vigente: `docs/specs/core-platform.md` (formato Spec-Driven do §2 do doc
-  metodológico `compass_artifact_wf-*.md` na pasta pai).
+## Stack de produção recomendado (plug-in)
+
+- **DB + Auth**: Supabase (substituir `mockData.ts` + `session.ts`)
+- **Vídeo**: Cloudflare Stream — upload direto do browser via signed URL em `/api/video/upload-url`
+- **Pagamentos**: Stripe — Checkout Session → webhook → criar Enrollment no Supabase
+- **Storage** (thumbnails/PDFs): Supabase Storage
+
+## Padrões de código
+
+- TailwindCSS 4 — variáveis em `globals.css` (`--background`, `--primary`...)
+- Paleta: `--background #06060c`, `--primary #c9a227` (ouro), `--secondary #4e3578` (roxo)
+- Fontes: Outfit (`font-heading`), Inter (`font-sans`)
+- Copy: pt-BR. Vocabulário: "trilha" (curso), "Ordem" (comunidade)
+- `"use client"` só quando há state/event handler/browser API
+- Zero `any`. Tipos fortes no domain.
+
+## Gotchas
+
+- `mockCourses` é um `let []` mutável — as write ops funcionam na sessão Node (não persistem em Vercel serverless; plug Supabase para persistência real).
+- `getCurrentUser()` retorna `mockUsers[0]` (admin). Trocar apenas em `application/session.ts`.
+- Controle de acesso por curso: `canAccessCourse(user, course)` em `application/courses.ts`.
+- Course precisa de `isPublished: true` para aparecer no catálogo público.

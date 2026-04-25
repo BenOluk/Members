@@ -95,16 +95,20 @@ export interface Course {
   subtitle: string;
   description: string;
   thumbnail: string;
-  coverImage: string;   // cover largo para hero
+  coverImage: string;
   categoryId: CourseCategoryId;
   instructorId: string;
   modules: Module[];
   tags: string[];
   level: 'introdutorio' | 'intermediario' | 'avancado';
   featured: boolean;
+  isPublished: boolean;
+  isFree: boolean;
+  price: number;          // BRL cents (0 se isFree)
+  currency: 'BRL';
   publishedAt: string;
   totalEnrollments: number;
-  ratingAverage: number; // 0..5
+  ratingAverage: number;
   ratingCount: number;
 }
 

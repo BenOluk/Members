@@ -10,6 +10,8 @@ import {
   allLessonsOfCourse,
   listCourses,
   getCategoryById,
+  canAccessCourse,
+  formatPrice,
 } from '@/core/application/courses';
 import { getUserById } from '@/core/application/users';
 import { AppHeader } from '@/components/AppHeader';
@@ -37,6 +39,34 @@ export default async function CoursePage({ params, searchParams }: PageProps) {
   }
 
   const user = getCurrentUser();
+  const hasAccess = canAccessCourse(user, course);
+
+  if (!hasAccess) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <AppHeader />
+        <main className="flex-1 flex items-center justify-center px-8">
+          <div className="max-w-md text-center space-y-6 py-20">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke="currentColor" className="w-12 h-12 text-foreground-muted mx-auto">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+            </svg>
+            <h1 className="text-2xl font-heading font-bold">{course.title}</h1>
+            <p className="text-foreground-muted">{course.description}</p>
+            <p className="text-3xl font-heading font-bold text-primary">
+              {course.isFree ? 'Gratuito' : formatPrice(course.price)}
+            </p>
+            <div className="flex flex-col gap-3">
+              <a href="#" className="block bg-primary hover:bg-primary-hover text-background font-semibold py-3 rounded-sm transition-colors">
+                Adquirir acesso — {course.isFree ? 'Gratuito' : formatPrice(course.price)}
+              </a>
+              <Link href="/catalog" className="text-sm text-foreground-muted hover:text-foreground transition-colors">← Ver catálogo</Link>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   const progress = getCourseProgress(user, course);
   const activeLesson = (l ? getLesson(course, l) : undefined) ?? getLesson(course, progress.nextLessonId ?? allLessonsOfCourse(course)[0].id) ?? allLessonsOfCourse(course)[0];
   const prev = getPreviousLesson(course, activeLesson.id);
