@@ -1,27 +1,25 @@
-import type { User, Badge } from '../domain/entities';
-import { mockUsers, mockBadges } from '../infra/mockData';
-import { levelForXp, nextLevelForXp, xpToNextLevel, levelProgressPercentage } from '../domain/levels';
+import type { Badge, User } from '../domain/entities';
+import { levelForXp, levelProgressPercentage, nextLevelForXp, xpToNextLevel } from '../domain/levels';
+import * as usersRepo from '../infra/repos/users';
 
 export function getUserById(userId: string): User | undefined {
-  return mockUsers.find((u) => u.id === userId);
+  return usersRepo.getById(userId);
 }
 
 export function getUserByHandle(handle: string): User | undefined {
-  return mockUsers.find((u) => u.handle === handle);
+  return usersRepo.getByHandle(handle);
 }
 
 export function listUsers(): User[] {
-  return mockUsers;
+  return usersRepo.list();
 }
 
 export function getBadgeById(badgeId: string): Badge | undefined {
-  return mockBadges.find((b) => b.id === badgeId);
+  return usersRepo.getBadgeById(badgeId);
 }
 
 export function getBadgesForUser(user: User): Badge[] {
-  return user.badgeIds
-    .map((id) => mockBadges.find((b) => b.id === id))
-    .filter((b): b is Badge => Boolean(b));
+  return usersRepo.getBadgesForUser(user.id);
 }
 
 export interface UserProgressSnapshot {
@@ -47,9 +45,9 @@ export function getUserProgress(userId: string): UserProgressSnapshot | undefine
 }
 
 export function topLearners(limit = 5): UserProgressSnapshot[] {
-  return [...mockUsers]
-    .sort((a, b) => b.xp - a.xp)
+  return usersRepo
+    .list() // já vem ordenado por XP desc
     .slice(0, limit)
-    .map((u) => getUserProgress(u.id)!)
-    .filter(Boolean);
+    .map((u) => getUserProgress(u.id))
+    .filter((s): s is UserProgressSnapshot => Boolean(s));
 }

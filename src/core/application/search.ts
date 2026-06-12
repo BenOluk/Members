@@ -1,5 +1,6 @@
 import type { Course, Post, Space, User } from '../domain/entities';
-import { mockPosts, mockSpaces, mockUsers } from '../infra/mockData';
+import * as communityRepo from '../infra/repos/community';
+import * as usersRepo from '../infra/repos/users';
 import { searchCourses } from './courses';
 
 export interface SearchResults {
@@ -15,19 +16,19 @@ export function globalSearch(query: string): SearchResults {
 
   return {
     courses: searchCourses(q),
-    users: mockUsers.filter(
+    users: usersRepo.list().filter(
       (u) =>
         u.name.toLowerCase().includes(q) ||
         u.handle.toLowerCase().includes(q) ||
         (u.bio ?? '').toLowerCase().includes(q),
     ),
-    spaces: mockSpaces.filter(
+    spaces: communityRepo.listSpaces().filter(
       (s) =>
         s.name.toLowerCase().includes(q) ||
         s.description.toLowerCase().includes(q) ||
         s.slug.toLowerCase().includes(q),
     ),
-    posts: mockPosts.filter(
+    posts: communityRepo.listPosts().filter(
       (p) =>
         p.content.toLowerCase().includes(q) ||
         (p.title ?? '').toLowerCase().includes(q),

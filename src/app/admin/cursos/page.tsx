@@ -1,77 +1,85 @@
 import Link from 'next/link';
-import { listCourses, formatPrice } from '@/core/application/courses';
+import Image from 'next/image';
+import { listCourses, getCategoryById, allLessonsOfCourse } from '@/core/application/courses';
+import { deleteCourse, togglePublishCourse } from '@/core/application/actions/admin';
 
-export default function AdminCursosPage() {
-  const courses = listCourses();
+export default function AdminCoursesPage() {
+  const courses = listCourses({ includeUnpublished: true });
 
   return (
     <div className="p-10">
-      <div className="flex items-center justify-between mb-8">
+      <div className="mb-8 flex items-end justify-between">
         <div>
-          <h1 className="text-2xl font-heading font-bold">Cursos</h1>
-          <p className="text-foreground-muted text-sm mt-1">{courses.length} trilha{courses.length !== 1 ? 's' : ''} no sistema.</p>
+          <h1 className="text-2xl font-heading font-bold">Trilhas</h1>
+          <p className="text-foreground-muted mt-1 text-sm">{courses.length} no total.</p>
         </div>
         <Link
           href="/admin/cursos/novo"
-          className="bg-primary hover:bg-primary-hover text-background font-semibold py-2 px-5 rounded-sm text-sm transition-colors"
+          className="bg-primary text-background font-bold px-5 py-2 rounded-sm hover:bg-primary-hover transition-colors text-sm"
         >
           + Nova trilha
         </Link>
       </div>
 
-      {courses.length === 0 ? (
-        <div className="text-center py-24 border border-border rounded-sm bg-surface space-y-4">
-          <span className="text-4xl text-foreground-dim glyph block">✦</span>
-          <p className="font-heading font-semibold">Nenhuma trilha ainda</p>
-          <p className="text-foreground-muted text-sm">Crie a primeira trilha do Sanctum.</p>
-          <Link href="/admin/cursos/novo" className="inline-block bg-primary hover:bg-primary-hover text-background font-semibold py-2 px-6 rounded-sm text-sm transition-colors">
-            Criar trilha
-          </Link>
-        </div>
-      ) : (
-        <div className="border border-border rounded-sm overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border bg-surface-hover">
-                <th className="text-left px-5 py-3 text-xs uppercase tracking-widest text-foreground-muted font-medium">Título</th>
-                <th className="text-left px-5 py-3 text-xs uppercase tracking-widest text-foreground-muted font-medium hidden md:table-cell">Categoria</th>
-                <th className="text-left px-5 py-3 text-xs uppercase tracking-widest text-foreground-muted font-medium hidden lg:table-cell">Preço</th>
-                <th className="text-left px-5 py-3 text-xs uppercase tracking-widest text-foreground-muted font-medium">Status</th>
-                <th className="px-5 py-3" />
-              </tr>
-            </thead>
-            <tbody>
-              {courses.map((course, idx) => {
-                const totalLessons = course.modules.reduce((a, m) => a + m.lessons.length, 0);
-                return (
-                  <tr key={course.id} className={`border-b border-border last:border-0 ${idx % 2 === 0 ? '' : 'bg-surface/40'}`}>
-                    <td className="px-5 py-4">
-                      <p className="font-medium text-foreground">{course.title}</p>
-                      <p className="text-xs text-foreground-muted mt-0.5">{totalLessons} aula{totalLessons !== 1 ? 's' : ''}</p>
-                    </td>
-                    <td className="px-5 py-4 text-foreground-muted hidden md:table-cell capitalize">{course.categoryId}</td>
-                    <td className="px-5 py-4 text-foreground-muted hidden lg:table-cell">
-                      {course.isFree ? <span className="text-green-400">Gratuito</span> : formatPrice(course.price)}
-                    </td>
-                    <td className="px-5 py-4">
-                      {course.isPublished ? (
-                        <span className="text-[10px] bg-green-500/15 text-green-400 border border-green-500/30 px-2 py-0.5 rounded-sm uppercase tracking-wider font-semibold">Publicado</span>
-                      ) : (
-                        <span className="text-[10px] bg-foreground-dim/20 text-foreground-muted border border-border px-2 py-0.5 rounded-sm uppercase tracking-wider font-semibold">Rascunho</span>
-                      )}
-                    </td>
-                    <td className="px-5 py-4 text-right">
-                      <Link href={`/admin/cursos/${course.id}`} className="text-xs text-primary hover:text-primary-hover transition-colors">
-                        Editar →
-                      </Link>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <div className="space-y-3">
+        {courses.map((c) => {
+          const category = getCategoryById(c.categoryId);
+          const lessonCount = allLessonsOfCourse(c).length;
+          return (
+            <div key={c.id} className="flex items-center gap-4 p-4 bg-surface border border-border rounded-md">
+              <div className="relative w-24 h-14 rounded overflow-hidden flex-shrink-0">
+                <Image src={c.thumbnail} alt="" fill className="object-cover" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-heading font-semibold text-sm truncate">{c.title}</h3>
+                  {!c.isPublished && (
+                    <span className="text-[9px] uppercase tracking-widest font-bold text-foreground-muted border border-border px-1.5 py-0.5 rounded-sm flex-shrink-0">
+                      Rascunho
+                    </span>
+                  )}
+                  {c.featured && (
+                    <span className="text-[9px] uppercase tracking-widest font-bold text-primary border border-primary/30 px-1.5 py-0.5 rounded-sm flex-shrink-0">
+                      Destaque
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-foreground-muted mt-1">
+                  {category?.label ?? c.categoryId} • {c.modules.length} módulos • {lessonCount} aulas • {c.totalEnrollments.toLocaleString('pt-BR')} matrículas
+                </p>
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <form action={togglePublishCourse.bind(null, c.id)}>
+                  <button
+                    type="submit"
+                    className={
+                      c.isPublished
+                        ? 'text-xs border border-border px-3 py-1.5 rounded-sm text-foreground-muted hover:text-foreground transition-colors'
+                        : 'text-xs border border-primary/40 px-3 py-1.5 rounded-sm text-primary hover:bg-primary/10 transition-colors'
+                    }
+                  >
+                    {c.isPublished ? 'Despublicar' : 'Publicar'}
+                  </button>
+                </form>
+                <Link
+                  href={`/admin/cursos/${c.id}`}
+                  className="text-xs border border-border px-3 py-1.5 rounded-sm text-foreground hover:border-primary/50 transition-colors"
+                >
+                  Editar
+                </Link>
+                <form action={deleteCourse.bind(null, c.id)}>
+                  <button
+                    type="submit"
+                    className="text-xs border border-destructive/40 px-3 py-1.5 rounded-sm text-destructive hover:bg-destructive/10 transition-colors"
+                  >
+                    Excluir
+                  </button>
+                </form>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

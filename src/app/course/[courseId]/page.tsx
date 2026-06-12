@@ -1,18 +1,19 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { getCurrentUser } from '@/core/application/session';
+import { notFound } from 'next/navigation';
+import { requireUser, isAdmin } from '@/core/application/session';
 import {
   getCourseById,
   getLesson,
   getNextLesson,
   getPreviousLesson,
   getCourseProgress,
+  getEnrollment,
   allLessonsOfCourse,
   listCourses,
   getCategoryById,
-  canAccessCourse,
-  formatPrice,
 } from '@/core/application/courses';
+import { completeLesson, enroll } from '@/core/application/actions/learning';
 import { getUserById } from '@/core/application/users';
 import { AppHeader } from '@/components/AppHeader';
 
@@ -25,60 +26,44 @@ export default async function CoursePage({ params, searchParams }: PageProps) {
   const { courseId } = await params;
   const { l } = await searchParams;
 
+  const user = await requireUser();
   const course = getCourseById(courseId);
-  if (!course) {
-    return (
-      <div className="min-h-screen">
-        <AppHeader />
-        <main className="max-w-2xl mx-auto p-12 text-center">
-          <h1 className="text-2xl font-heading font-bold">Trilha não encontrada</h1>
-          <p className="text-foreground-muted mt-2">Volte ao <Link href="/" className="text-primary">catálogo</Link>.</p>
-        </main>
-      </div>
-    );
-  }
-
-  const user = getCurrentUser();
-  const hasAccess = canAccessCourse(user, course);
-
-  if (!hasAccess) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <AppHeader />
-        <main className="flex-1 flex items-center justify-center px-8">
-          <div className="max-w-md text-center space-y-6 py-20">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke="currentColor" className="w-12 h-12 text-foreground-muted mx-auto">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-            </svg>
-            <h1 className="text-2xl font-heading font-bold">{course.title}</h1>
-            <p className="text-foreground-muted">{course.description}</p>
-            <p className="text-3xl font-heading font-bold text-primary">
-              {course.isFree ? 'Gratuito' : formatPrice(course.price)}
-            </p>
-            <div className="flex flex-col gap-3">
-              <a href="#" className="block bg-primary hover:bg-primary-hover text-background font-semibold py-3 rounded-sm transition-colors">
-                Adquirir acesso — {course.isFree ? 'Gratuito' : formatPrice(course.price)}
-              </a>
-              <Link href="/catalog" className="text-sm text-foreground-muted hover:text-foreground transition-colors">← Ver catálogo</Link>
-            </div>
-          </div>
-        </main>
-      </div>
-    );
+  if (!course || (!course.isPublished && !isAdmin(user) && !getEnrollment(user.id, course.id))) {
+    notFound();
   }
 
   const progress = getCourseProgress(user, course);
-  const activeLesson = (l ? getLesson(course, l) : undefined) ?? getLesson(course, progress.nextLessonId ?? allLessonsOfCourse(course)[0].id) ?? allLessonsOfCourse(course)[0];
-  const prev = getPreviousLesson(course, activeLesson.id);
-  const next = getNextLesson(course, activeLesson.id);
-  const isCompleted = user.completedLessonIds.includes(activeLesson.id);
+  const lessons = allLessonsOfCourse(course);
+  const enrollment = getEnrollment(user.id, course.id);
   const category = getCategoryById(course.categoryId);
   const instructor = getUserById(course.instructorId);
   const related = listCourses().filter((c) => c.categoryId === course.categoryId && c.id !== course.id).slice(0, 4);
 
+  // Curso sem aulas: estado vazio em vez de crash.
+  if (lessons.length === 0) {
+    return (
+      <div className="min-h-screen">
+        <AppHeader user={user} active="trilhas" />
+        <main className="max-w-2xl mx-auto p-12 text-center">
+          <h1 className="text-2xl font-heading font-bold">{course.title}</h1>
+          <p className="text-foreground-muted mt-2">Esta trilha ainda não tem aulas publicadas.</p>
+          <Link href="/" className="text-primary text-sm mt-4 inline-block">← Voltar ao catálogo</Link>
+        </main>
+      </div>
+    );
+  }
+
+  const activeLesson =
+    (l ? getLesson(course, l) : undefined) ??
+    (progress.nextLessonId ? getLesson(course, progress.nextLessonId) : undefined) ??
+    lessons[0];
+  const prev = getPreviousLesson(course, activeLesson.id);
+  const next = getNextLesson(course, activeLesson.id);
+  const isCompleted = user.completedLessonIds.includes(activeLesson.id);
+
   return (
     <div className="min-h-screen flex flex-col">
-      <AppHeader active="trilhas" />
+      <AppHeader user={user} active="trilhas" />
 
       <div className="flex-1 flex flex-col md:flex-row">
         {/* Sidebar */}
@@ -113,8 +98,8 @@ export default async function CoursePage({ params, searchParams }: PageProps) {
                         href={`/course/${course.id}?l=${lesson.id}`}
                         className={
                           isActive
-                            ? 'text-left p-3 text-sm flex items-start gap-3 bg-primary/10 text-primary border-l-2 border-primary'
-                            : 'text-left p-3 text-sm flex items-start gap-3 text-foreground-muted hover:bg-surface-hover hover:text-foreground border-l-2 border-transparent transition-colors'
+                            ? 'text-left px-3 py-2.5 text-sm flex items-start gap-3 bg-primary/10 text-primary rounded'
+                            : 'text-left px-3 py-2.5 text-sm flex items-start gap-3 text-foreground-muted hover:bg-surface-hover hover:text-foreground rounded transition-colors duration-150'
                         }
                       >
                         <div className="mt-0.5">
@@ -164,18 +149,36 @@ export default async function CoursePage({ params, searchParams }: PageProps) {
             <h1 className="text-3xl font-heading font-bold mb-4">{activeLesson.title}</h1>
 
             <div className="flex flex-wrap gap-3 mb-8">
-              <button
-                className={
-                  isCompleted
-                    ? 'bg-surface text-foreground-muted border border-border px-6 py-2 rounded-sm font-medium flex items-center gap-2 cursor-default'
-                    : 'bg-primary text-background px-6 py-2 rounded-sm font-semibold flex items-center gap-2 hover:bg-primary-hover transition-colors'
-                }
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                </svg>
-                {isCompleted ? 'Aula concluída' : 'Marcar como concluída'}
-              </button>
+              {!enrollment && (
+                <form action={enroll.bind(null, course.id)}>
+                  <button
+                    type="submit"
+                    className="bg-secondary/40 border border-secondary text-foreground px-6 py-2 rounded-sm font-semibold hover:bg-secondary/60 transition-colors"
+                  >
+                    Matricular-se nesta trilha
+                  </button>
+                </form>
+              )}
+              {isCompleted ? (
+                <span className="bg-surface text-foreground-muted border border-border px-6 py-2 rounded-sm font-medium flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-primary">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                  </svg>
+                  Aula concluída
+                </span>
+              ) : (
+                <form action={completeLesson.bind(null, course.id, activeLesson.id)}>
+                  <button
+                    type="submit"
+                    className="bg-primary text-background px-6 py-2 rounded-sm font-semibold flex items-center gap-2 hover:bg-primary-hover transition-colors"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                    Marcar como concluída
+                  </button>
+                </form>
+              )}
               {prev && (
                 <Link href={`/course/${course.id}?l=${prev.id}`} className="bg-surface hover:bg-surface-hover border border-border px-6 py-2 rounded-sm font-medium text-sm">
                   ← Aula anterior
@@ -190,10 +193,6 @@ export default async function CoursePage({ params, searchParams }: PageProps) {
 
             <div className="prose prose-invert max-w-none text-foreground-muted">
               <p className="text-lg leading-relaxed">{activeLesson.description}</p>
-              <p className="mt-4">
-                Nesta sessão, mergulhamos em conceitos profundos revelados pelos textos herméticos. As anotações e reflexões devem ser levadas
-                à comunidade para expansão coletiva do conhecimento.
-              </p>
             </div>
 
             {instructor && (

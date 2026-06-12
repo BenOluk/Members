@@ -1,16 +1,12 @@
 import type { Post, Space, User } from '../domain/entities';
-import { mockPosts, mockSpaces } from '../infra/mockData';
+import * as communityRepo from '../infra/repos/community';
 
 export function listSpaces(): Space[] {
-  return mockSpaces;
+  return communityRepo.listSpaces();
 }
 
 export function getSpaceById(spaceId: string): Space | undefined {
-  return mockSpaces.find((s) => s.id === spaceId);
-}
-
-export function getSpaceBySlug(slug: string): Space | undefined {
-  return mockSpaces.find((s) => s.slug === slug);
+  return communityRepo.getSpaceById(spaceId);
 }
 
 export function canUserAccessSpace(user: User, space: Space): boolean {
@@ -22,39 +18,31 @@ export function canUserAccessSpace(user: User, space: Space): boolean {
 
 export function groupedSpaces(): Array<{ categoryLabel: string; spaces: Space[] }> {
   const by = new Map<string, Space[]>();
-  for (const s of mockSpaces) {
+  for (const s of communityRepo.listSpaces()) {
     const list = by.get(s.categoryLabel) ?? [];
     list.push(s);
     by.set(s.categoryLabel, list);
   }
-  // ordem preferida
+  // Ordem preferida; categorias novas criadas no admin entram no fim.
   const preferred = ['Principal', 'Estudos', 'Suporte', 'Eventos', 'Premium'];
-  return preferred
+  const rest = [...by.keys()].filter((label) => !preferred.includes(label)).sort();
+  return [...preferred, ...rest]
     .filter((label) => by.has(label))
     .map((label) => ({ categoryLabel: label, spaces: by.get(label)! }));
 }
 
 export function listPosts(options?: { spaceId?: string }): Post[] {
-  const filtered = options?.spaceId
-    ? mockPosts.filter((p) => p.spaceId === options.spaceId)
-    : mockPosts;
-  return [...filtered].sort((a, b) => {
-    if (a.pinned && !b.pinned) return -1;
-    if (!a.pinned && b.pinned) return 1;
-    return b.createdAt.localeCompare(a.createdAt);
-  });
+  return communityRepo.listPosts(options);
 }
 
 export function getPostById(postId: string): Post | undefined {
-  return mockPosts.find((p) => p.id === postId);
+  return communityRepo.getPostById(postId);
 }
 
 export function countCommentsBySpace(spaceId: string): number {
-  return mockPosts
-    .filter((p) => p.spaceId === spaceId)
-    .reduce((acc, p) => acc + p.comments.length, 0);
+  return communityRepo.countCommentsBySpace(spaceId);
 }
 
 export function countPostsBySpace(spaceId: string): number {
-  return mockPosts.filter((p) => p.spaceId === spaceId).length;
+  return communityRepo.countPostsBySpace(spaceId);
 }

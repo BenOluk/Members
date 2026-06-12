@@ -1,16 +1,18 @@
 import type { LiveEvent } from '../domain/entities';
-import { mockEvents } from '../infra/mockData';
+import * as eventsRepo from '../infra/repos/events';
+
+export function listAllEvents(): LiveEvent[] {
+  return eventsRepo.list();
+}
 
 export function listUpcomingEvents(limit?: number): LiveEvent[] {
   const now = Date.now();
-  const future = mockEvents
-    .filter((e) => new Date(e.startsAt).getTime() >= now)
-    .sort((a, b) => a.startsAt.localeCompare(b.startsAt));
+  const future = eventsRepo.list().filter((e) => new Date(e.startsAt).getTime() >= now);
   return limit ? future.slice(0, limit) : future;
 }
 
 export function getEventById(id: string): LiveEvent | undefined {
-  return mockEvents.find((e) => e.id === id);
+  return eventsRepo.getById(id);
 }
 
 export function timeUntilEvent(event: LiveEvent): { days: number; hours: number; minutes: number; isLive: boolean } {

@@ -1,12 +1,10 @@
 import type { Certificate } from '../domain/entities';
-import { mockCertificates } from '../infra/mockData';
+import * as certificatesRepo from '../infra/repos/certificates';
 
 export function listCertificates(userId: string): Certificate[] {
-  return mockCertificates
-    .filter((c) => c.userId === userId)
-    .sort((a, b) => b.issuedAt.localeCompare(a.issuedAt));
+  return certificatesRepo.listForUser(userId);
 }
 
 export function getCertificate(credentialCode: string): Certificate | undefined {
-  return mockCertificates.find((c) => c.credentialCode === credentialCode);
+  return certificatesRepo.getByCode(credentialCode);
 }

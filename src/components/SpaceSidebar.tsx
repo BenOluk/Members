@@ -9,15 +9,17 @@ export function SpaceSidebar({ activeSpaceId }: SpaceSidebarProps) {
   const groups = groupedSpaces();
 
   return (
-    <aside className="hidden md:block w-64 border-r border-border bg-surface/50 h-[calc(100vh-57px)] sticky top-[57px] overflow-y-auto">
-      <div className="p-6">
-        <h2 className="text-xs font-bold text-foreground-muted uppercase tracking-widest mb-6">A Ordem</h2>
+    <aside className="hidden md:block w-60 border-r border-border bg-surface/40 h-[calc(100vh-57px)] sticky top-[57px] overflow-y-auto scrollbar-hide flex-shrink-0">
+      <div className="px-5 py-6">
+        <p className="text-[10px] font-bold text-foreground-muted uppercase tracking-[0.18em] mb-6">A Ordem</p>
 
-        <nav className="space-y-6">
+        <nav className="space-y-5">
           {groups.map((group) => (
             <div key={group.categoryLabel}>
-              <h3 className="text-xs font-bold text-foreground-muted uppercase tracking-wider mb-3">{group.categoryLabel}</h3>
-              <ul className="space-y-1">
+              <p className="text-[10px] font-bold text-foreground-muted/60 uppercase tracking-widest mb-2">
+                {group.categoryLabel}
+              </p>
+              <ul className="space-y-0.5">
                 {group.spaces.map((space) => {
                   const isActive = activeSpaceId === space.id;
                   return (
@@ -26,16 +28,16 @@ export function SpaceSidebar({ activeSpaceId }: SpaceSidebarProps) {
                         href={`/space/${space.id}`}
                         className={
                           isActive
-                            ? 'flex items-center justify-between px-3 py-2 rounded-md bg-primary/10 text-primary font-medium'
-                            : 'flex items-center justify-between px-3 py-2 rounded-md text-foreground-muted hover:text-foreground hover:bg-surface-hover transition-colors'
+                            ? 'flex items-center justify-between px-2.5 py-2 rounded bg-primary/8 text-primary text-sm font-semibold'
+                            : 'flex items-center justify-between px-2.5 py-2 rounded text-foreground-muted hover:text-foreground hover:bg-surface-hover transition-colors duration-150 text-sm'
                         }
                       >
                         <span className="flex items-center gap-2 min-w-0">
-                          <span className="text-base">{space.icon}</span>
+                          <span className="text-sm leading-none" aria-hidden>{space.icon}</span>
                           <span className="truncate">{space.name}</span>
                         </span>
                         {space.visibility === 'premium' && (
-                          <span className="text-[9px] uppercase tracking-wider bg-primary/20 text-primary px-1.5 py-0.5 rounded-sm">Pro</span>
+                          <span className="text-[9px] uppercase tracking-wider text-primary/70 font-bold ml-1">Pro</span>
                         )}
                       </Link>
                     </li>

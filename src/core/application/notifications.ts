@@ -1,12 +1,10 @@
 import type { AppNotification } from '../domain/entities';
-import { mockNotifications } from '../infra/mockData';
+import * as notificationsRepo from '../infra/repos/notifications';
 
 export function listNotifications(userId: string): AppNotification[] {
-  return mockNotifications
-    .filter((n) => n.userId === userId)
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  return notificationsRepo.listForUser(userId);
 }
 
 export function countUnread(userId: string): number {
-  return listNotifications(userId).filter((n) => !n.read).length;
+  return notificationsRepo.countUnread(userId);
 }

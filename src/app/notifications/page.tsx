@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { AppHeader } from '@/components/AppHeader';
-import { getCurrentUser } from '@/core/application/session';
+import { requireUser } from '@/core/application/session';
 import { listNotifications } from '@/core/application/notifications';
+import { markAllNotificationsRead } from '@/core/application/actions/notifications';
 import type { NotificationKind } from '@/core/domain/entities';
 
 const ICON: Record<NotificationKind, string> = {
@@ -22,20 +23,27 @@ function relative(iso: string): string {
   return `${d}d`;
 }
 
-export default function NotificationsPage() {
-  const user = getCurrentUser();
+export default async function NotificationsPage() {
+  const user = await requireUser();
   const list = listNotifications(user.id);
+  const hasUnread = list.some((n) => !n.read);
 
   return (
     <div className="min-h-screen">
-      <AppHeader />
+      <AppHeader user={user} />
       <main className="max-w-3xl mx-auto px-6 py-10 pb-20">
         <header className="mb-8 flex items-end justify-between">
           <div>
             <h1 className="text-3xl font-heading font-bold">Notificações</h1>
             <p className="text-foreground-muted text-sm mt-1">{list.length} no total</p>
           </div>
-          <button className="text-sm text-primary hover:text-primary-hover">Marcar tudo como lido</button>
+          {hasUnread && (
+            <form action={markAllNotificationsRead}>
+              <button type="submit" className="text-sm text-primary hover:text-primary-hover">
+                Marcar tudo como lido
+              </button>
+            </form>
+          )}
         </header>
 
         {list.length === 0 ? (

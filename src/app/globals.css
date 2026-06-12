@@ -1,38 +1,37 @@
 @import "tailwindcss";
 
 :root {
-  --background: #06060c;
-  --surface: #0f0d18;
-  --surface-hover: #181525;
-  --border: #211d2e;
-  --border-subtle: #16131f;
-  --foreground: #e8e6f0;
-  --foreground-muted: #7a7689;
-  --foreground-dim: #3e3a52;
-  --primary: #c9a227;
-  --primary-hover: #e8c75a;
-  --primary-dim: rgba(201, 162, 39, 0.12);
-  --secondary: #4e3578;
-  --secondary-hover: #6a49a3;
-  --accent-copper: #b5622a;
+  /* Deep warm dark — a room of stone and amber candlelight */
+  --background:       oklch(7% 0.012 55);
+  --surface:          oklch(12% 0.016 55);
+  --surface-hover:    oklch(17% 0.020 55);
+  --border:           oklch(22% 0.022 55);
+  --foreground:       oklch(90% 0.012 80);
+  --foreground-muted: oklch(53% 0.010 70);
+
+  /* Amber topaz — refined, not metallic */
+  --primary:          oklch(70% 0.110 68);
+  --primary-hover:    oklch(77% 0.090 72);
+
+  /* Deep indigo — reserved for rare/secondary states */
+  --secondary:        oklch(32% 0.090 270);
+
+  /* Cinnabar — live events and destructive actions only */
+  --destructive:      oklch(57% 0.190 28);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-surface: var(--surface);
-  --color-surface-hover: var(--surface-hover);
-  --color-border: var(--border);
-  --color-border-subtle: var(--border-subtle);
-  --color-foreground: var(--foreground);
-  --color-foreground-muted: var(--foreground-muted);
-  --color-foreground-dim: var(--foreground-dim);
-  --color-primary: var(--primary);
-  --color-primary-hover: var(--primary-hover);
-  --color-primary-dim: var(--primary-dim);
-  --color-secondary: var(--secondary);
-  --color-secondary-hover: var(--secondary-hover);
-  --color-accent-copper: var(--accent-copper);
-  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --color-background:        var(--background);
+  --color-surface:           var(--surface);
+  --color-surface-hover:     var(--surface-hover);
+  --color-border:            var(--border);
+  --color-foreground:        var(--foreground);
+  --color-foreground-muted:  var(--foreground-muted);
+  --color-primary:           var(--primary);
+  --color-primary-hover:     var(--primary-hover);
+  --color-secondary:         var(--secondary);
+  --color-destructive:       var(--destructive);
+  --font-sans:    var(--font-inter), system-ui, sans-serif;
   --font-heading: var(--font-outfit), system-ui, sans-serif;
 }
 
@@ -42,31 +41,17 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-size: 15px;
-  line-height: 1.6;
 }
 
 /* Scrollbar */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: var(--background); }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--secondary); }
+::-webkit-scrollbar       { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--foreground-muted); }
 
-/* Focus ring */
-:focus-visible {
-  outline: 1px solid var(--primary);
-  outline-offset: 2px;
+/* Snap scroll for carousels */
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
-
-/* Divider util */
-.divider {
-  border: none;
-  border-top: 1px solid var(--border);
-}
-
-/* Sanctum glyph animation */
-@keyframes glyph-pulse {
-  0%, 100% { opacity: 0.7; }
-  50% { opacity: 1; }
-}
-.glyph { animation: glyph-pulse 4s ease-in-out infinite; }
+.scrollbar-hide::-webkit-scrollbar { display: none; }

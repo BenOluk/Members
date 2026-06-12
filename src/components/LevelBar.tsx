@@ -6,53 +6,82 @@ interface LevelBarProps {
   variant?: 'compact' | 'full';
 }
 
+const TIER_ORDER = ['iniciado', 'aprendiz', 'adepto', 'mestre', 'grao_mestre'] as const;
+
 export function LevelBar({ user, variant = 'full' }: LevelBarProps) {
   const level = levelForXp(user.xp);
   const next = nextLevelForXp(user.xp);
   const pct = levelProgressPercentage(user.xp);
   const toNext = xpToNextLevel(user.xp);
   const accent = TIER_ACCENT[level.tier];
+  const tierIndex = TIER_ORDER.indexOf(level.tier as typeof TIER_ORDER[number]);
 
   if (variant === 'compact') {
     return (
-      <div className="flex items-center gap-3">
-        <span className="text-xs uppercase tracking-wider font-bold" style={{ color: accent }}>
+      <div className="flex items-center gap-2.5">
+        <span className="text-xs uppercase tracking-widest font-bold" style={{ color: accent }}>
           {level.label}
         </span>
-        <div className="flex-1 h-1 bg-background rounded-full overflow-hidden">
+        <div className="flex-1 h-px bg-border rounded-full overflow-hidden">
           <div className="h-full" style={{ width: `${pct}%`, backgroundColor: accent }} />
         </div>
-        <span className="text-xs text-foreground-muted">{pct}%</span>
+        <span className="text-[10px] text-foreground-muted tabular-nums">{pct}%</span>
       </div>
     );
   }
 
   return (
-    <div className="bg-surface border border-border rounded-lg p-5">
-      <div className="flex items-baseline justify-between mb-4">
+    <div className="bg-surface border border-border rounded p-5">
+      <div className="flex items-start justify-between mb-5">
         <div>
-          <p className="text-xs text-foreground-muted uppercase tracking-wider">Seu nível</p>
-          <h3 className="text-2xl font-heading font-bold mt-1" style={{ color: accent }}>
+          <p className="text-[10px] text-foreground-muted uppercase tracking-widest mb-1.5">Sua iniciação</p>
+          <h3 className="text-2xl font-heading font-bold tracking-wide" style={{ color: accent }}>
             {level.label}
           </h3>
         </div>
         <div className="text-right">
-          <p className="text-xs text-foreground-muted">XP total</p>
-          <p className="text-lg font-semibold text-foreground">{user.xp.toLocaleString('pt-BR')}</p>
+          <p className="text-[10px] text-foreground-muted uppercase tracking-widest mb-1.5">XP total</p>
+          <p className="text-lg font-heading font-semibold text-foreground tabular-nums">
+            {user.xp.toLocaleString('pt-BR')}
+          </p>
         </div>
       </div>
-      <div className="w-full h-2 bg-background rounded-full overflow-hidden">
-        <div className="h-full transition-all duration-700" style={{ width: `${pct}%`, backgroundColor: accent }} />
+
+      {/* Segmented tier progress */}
+      <div className="flex gap-1 mb-3">
+        {TIER_ORDER.map((tier, i) => {
+          const tierAccent = TIER_ACCENT[tier];
+          const filled = i < tierIndex;
+          const current = i === tierIndex;
+          return (
+            <div
+              key={tier}
+              className="flex-1 h-1 rounded-full overflow-hidden bg-border"
+              title={tier}
+            >
+              {filled && (
+                <div className="h-full w-full rounded-full" style={{ backgroundColor: tierAccent }} />
+              )}
+              {current && (
+                <div
+                  className="h-full rounded-full transition-all duration-700"
+                  style={{ width: `${pct}%`, backgroundColor: tierAccent }}
+                />
+              )}
+            </div>
+          );
+        })}
       </div>
-      <div className="flex justify-between mt-2 text-xs text-foreground-muted">
-        <span>{level.label}</span>
+
+      <div className="flex justify-between text-[11px] text-foreground-muted">
+        <span style={{ color: accent }}>{level.label}</span>
         {next ? (
           <span>
-            Faltam <span className="text-foreground font-medium">{toNext.toLocaleString('pt-BR')} XP</span> para{' '}
-            <span className="text-primary font-medium">{next.label}</span>
+            <span className="text-foreground font-medium">{toNext.toLocaleString('pt-BR')} XP</span>{' '}
+            para {next.label}
           </span>
         ) : (
-          <span className="text-primary">Círculo completo.</span>
+          <span className="text-primary font-medium">Círculo completo.</span>
         )}
       </div>
     </div>

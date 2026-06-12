@@ -6,60 +6,43 @@ import type {
   Lesson,
   User,
 } from '../domain/entities';
-import {
-  mockCategories,
-  mockCourses,
-  mockEnrollments,
-} from '../infra/mockData';
+import * as coursesRepo from '../infra/repos/courses';
 
 export function listCategories(): CourseCategory[] {
-  return mockCategories;
+  return coursesRepo.listCategories();
 }
 
 export function getCategoryById(id: string): CourseCategory | undefined {
-  return mockCategories.find((c) => c.id === id);
+  return coursesRepo.listCategories().find((c) => c.id === id);
 }
 
-export function listCourses(): Course[] {
-  return mockCourses;
-}
-
-export function listPublishedCourses(): Course[] {
-  return mockCourses.filter((c) => c.isPublished);
+/** Por padrão só trilhas publicadas (visão do aluno). */
+export function listCourses(opts?: { includeUnpublished?: boolean }): Course[] {
+  return coursesRepo.list(opts);
 }
 
 export function getCourseById(courseId: string): Course | undefined {
-  return mockCourses.find((c) => c.id === courseId);
+  return coursesRepo.getById(courseId);
 }
 
 export function getCoursesByCategory(categoryId: string): Course[] {
-  return mockCourses.filter((c) => c.categoryId === categoryId && c.isPublished);
+  return coursesRepo.list().filter((c) => c.categoryId === categoryId);
 }
 
 export function getFeaturedCourses(): Course[] {
-  return mockCourses.filter((c) => c.featured && c.isPublished);
+  return coursesRepo.list().filter((c) => c.featured);
 }
 
 export function getEnrollmentsForUser(userId: string): Enrollment[] {
-  return mockEnrollments.filter((e) => e.userId === userId);
+  return coursesRepo.getEnrollmentsForUser(userId);
 }
 
-export function isEnrolled(user: User, courseId: string): boolean {
-  return user.enrolledCourseIds.includes(courseId);
-}
-
-export function canAccessCourse(user: User, course: Course): boolean {
-  if (user.role === 'admin') return true;
-  if (course.isFree) return true;
-  return isEnrolled(user, course.id);
-}
-
-export function formatPrice(cents: number): string {
-  return (cents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+export function getEnrollment(userId: string, courseId: string): Enrollment | undefined {
+  return coursesRepo.getEnrollment(userId, courseId);
 }
 
 export function allLessonsOfCourse(course: Course): Lesson[] {
-  return course.modules
+  return [...course.modules]
     .sort((a, b) => a.order - b.order)
     .flatMap((m) => [...m.lessons].sort((a, b) => a.order - b.order));
 }
@@ -106,51 +89,23 @@ export function getContinueWatching(user: User): Array<{ course: Course; progres
     .filter((x): x is { course: Course; progress: CourseProgress } => Boolean(x));
 }
 
-export function getEnrolledCourses(user: User): Array<{ course: Course; progress: CourseProgress }> {
-  return user.enrolledCourseIds
-    .map((id) => getCourseById(id))
-    .filter((c): c is Course => Boolean(c))
-    .map((course) => ({ course, progress: getCourseProgress(user, course) }));
+export function getEnrolledCourses(user: User): Array<{ course: Course; progress: CourseProgress; enrollment: Enrollment }> {
+  return getEnrollmentsForUser(user.id)
+    .map((enrollment) => {
+      const course = getCourseById(enrollment.courseId);
+      if (!course) return undefined;
+      return { course, progress: getCourseProgress(user, course), enrollment };
+    })
+    .filter((x): x is NonNullable<typeof x> => Boolean(x));
 }
 
 export function searchCourses(query: string): Course[] {
   const q = query.trim().toLowerCase();
   if (!q) return [];
-  return mockCourses.filter(
-    (c) =>
-      c.isPublished &&
-      (c.title.toLowerCase().includes(q) ||
-        c.subtitle.toLowerCase().includes(q) ||
-        c.description.toLowerCase().includes(q) ||
-        c.tags.some((t) => t.toLowerCase().includes(q))),
+  return coursesRepo.list().filter((c) =>
+    c.title.toLowerCase().includes(q) ||
+    c.subtitle.toLowerCase().includes(q) ||
+    c.description.toLowerCase().includes(q) ||
+    c.tags.some((t) => t.toLowerCase().includes(q)),
   );
-}
-
-// ---------- Write operations (em prod: Supabase) -------------------------
-
-export function adminCreateCourse(data: Omit<Course, 'id' | 'publishedAt' | 'totalEnrollments' | 'ratingAverage' | 'ratingCount'>): Course {
-  const course: Course = {
-    ...data,
-    id: `course_${Date.now()}`,
-    publishedAt: new Date().toISOString(),
-    totalEnrollments: 0,
-    ratingAverage: 0,
-    ratingCount: 0,
-  };
-  mockCourses.push(course);
-  return course;
-}
-
-export function adminUpdateCourse(id: string, data: Partial<Course>): Course | undefined {
-  const idx = mockCourses.findIndex((c) => c.id === id);
-  if (idx < 0) return undefined;
-  mockCourses[idx] = { ...mockCourses[idx], ...data };
-  return mockCourses[idx];
-}
-
-export function adminDeleteCourse(id: string): boolean {
-  const idx = mockCourses.findIndex((c) => c.id === id);
-  if (idx < 0) return false;
-  mockCourses.splice(idx, 1);
-  return true;
 }

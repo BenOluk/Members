@@ -37,9 +37,9 @@ export function levelProgressPercentage(xp: number): number {
 }
 
 export const TIER_ACCENT: Record<LevelTier, string> = {
-  iniciado: '#9c98a8',
-  aprendiz: '#b08d57',
-  adepto: '#d4af37',
-  mestre: '#e6c866',
-  grao_mestre: '#f3e5ab',
+  iniciado:   '#7a7470',
+  aprendiz:   '#a07d48',
+  adepto:     '#b08a3e',
+  mestre:     '#c9a244',
+  grao_mestre: '#e8d49a',
 };

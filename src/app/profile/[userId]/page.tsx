@@ -6,10 +6,12 @@ import { LevelBar } from '@/components/LevelBar';
 import { BadgeChip } from '@/components/BadgeChip';
 import { CourseCard } from '@/components/CourseCard';
 import { PostCard } from '@/components/PostCard';
+import { requireUser } from '@/core/application/session';
 import { getUserProgress } from '@/core/application/users';
 import { getCourseById, getCourseProgress } from '@/core/application/courses';
 import { listPosts } from '@/core/application/community';
 import { listCertificates } from '@/core/application/certificates';
+import { toggleFollow } from '@/core/application/actions/community';
 
 interface PageProps {
   params: Promise<{ userId: string }>;
@@ -17,10 +19,13 @@ interface PageProps {
 
 export default async function ProfilePage({ params }: PageProps) {
   const { userId } = await params;
+  const currentUser = await requireUser();
   const snap = getUserProgress(userId);
   if (!snap) notFound();
 
   const { user, badges, level, nextLevel, xpToNext } = snap;
+  const isOwnProfile = currentUser.id === user.id;
+  const isFollowing = currentUser.followingUserIds.includes(user.id);
   const enrolled = user.enrolledCourseIds
     .map((id) => getCourseById(id))
     .filter((c): c is NonNullable<typeof c> => Boolean(c))
@@ -30,7 +35,7 @@ export default async function ProfilePage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen">
-      <AppHeader active="perfil" />
+      <AppHeader user={currentUser} active={isOwnProfile ? 'perfil' : undefined} />
 
       <section className="relative">
         <div aria-hidden className="absolute inset-0 h-56 bg-gradient-to-b from-secondary/20 to-transparent" />
@@ -49,9 +54,20 @@ export default async function ProfilePage({ params }: PageProps) {
                 <span>{user.completedLessonIds.length} aulas concluídas</span>
               </div>
             </div>
-            <button className="bg-primary hover:bg-primary-hover text-background font-semibold px-6 py-2 rounded-sm">
-              Seguir
-            </button>
+            {!isOwnProfile && (
+              <form action={toggleFollow.bind(null, user.id)}>
+                <button
+                  type="submit"
+                  className={
+                    isFollowing
+                      ? 'bg-surface border border-border text-foreground font-semibold px-6 py-2 rounded-sm hover:border-foreground-muted transition-colors'
+                      : 'bg-primary hover:bg-primary-hover text-background font-semibold px-6 py-2 rounded-sm transition-colors'
+                  }
+                >
+                  {isFollowing ? 'Seguindo ✓' : 'Seguir'}
+                </button>
+              </form>
+            )}
           </div>
         </div>
       </section>
@@ -108,7 +124,7 @@ export default async function ProfilePage({ params }: PageProps) {
             <p className="text-foreground-muted text-sm">Sem posts ainda.</p>
           ) : (
             <div className="space-y-4">
-              {userPosts.map((p) => <PostCard key={p.id} post={p} showSpace />)}
+              {userPosts.map((p) => <PostCard key={p.id} post={p} currentUser={currentUser} showSpace />)}
             </div>
           )}
         </section>

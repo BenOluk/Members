@@ -20,12 +20,12 @@ import type {
 // ---------- Categorias -----------------------------------------------------
 
 export const mockCategories: CourseCategory[] = [
-  { id: 'hermetismo',   label: 'Hermetismo',    description: 'Kybalion, alquimia interior e magia prática.',        accent: '#d4af37' },
-  { id: 'high-thinking', label: 'High Thinking', description: 'Pensar em sistemas, superar autossabotagem.',         accent: '#e6c866' },
-  { id: 'ia',            label: 'IA & Tecnologia', description: 'Engenharia de prompts, agentes, workflows.',        accent: '#7bb3ff' },
-  { id: 'copy',          label: 'Copywriting',  description: 'Narrativa, persuasão ética e voz autêntica.',         accent: '#d98a5c' },
-  { id: 'astrologia',    label: 'Astrologia',   description: 'Arquétipos, mapa natal e sincronicidade.',            accent: '#a076d9' },
-  { id: 'livre',         label: 'Mente Livre',  description: 'Autonomia intelectual e desescolarização.',           accent: '#88c9a1' },
+  { id: 'hermetismo',    label: 'Hermetismo',     description: 'Kybalion, alquimia interior e magia prática.',    accent: '#b08a3e' },
+  { id: 'high-thinking', label: 'High Thinking',  description: 'Pensar em sistemas, superar autossabotagem.',     accent: '#c9a244' },
+  { id: 'ia',            label: 'IA & Tecnologia', description: 'Engenharia de prompts, agentes, workflows.',     accent: '#7ba8d4' },
+  { id: 'copy',          label: 'Copywriting',    description: 'Narrativa, persuasão ética e voz autêntica.',    accent: '#c4826a' },
+  { id: 'astrologia',    label: 'Astrologia',     description: 'Arquétipos, mapa natal e sincronicidade.',       accent: '#8ba8cc' },
+  { id: 'livre',         label: 'Mente Livre',    description: 'Autonomia intelectual e desescolarização.',      accent: '#7aae8e' },
 ];
 
 // ---------- Badges ---------------------------------------------------------
@@ -37,7 +37,7 @@ export const mockBadges: Badge[] = [
   { id: 'b_iluminado',       name: 'Iluminado',          description: 'Concluiu uma trilha inteira.',                icon: 'sparkles',       rarity: 'rare' },
   { id: 'b_catalisador',     name: 'Catalisador',        description: 'Recebeu 50 curtidas em um único post.',       icon: 'zap',            rarity: 'rare' },
   { id: 'b_quiron',          name: 'Quiron',             description: 'Respondeu a 10 dúvidas de outros alunos.',    icon: 'life-buoy',      rarity: 'rare' },
-  { id: 'b_grao_mestre',     name: 'Grão-Mestre',        description: 'Convite direto do Polímata.',                 icon: 'crown',          rarity: 'legendary' },
+  { id: 'b_grao_mestre',     name: 'Grão-Mestre',        description: 'Convite direto do Sanctum.',                  icon: 'crown',          rarity: 'legendary' },
 ];
 
 // ---------- Usuários ------------------------------------------------------
@@ -47,6 +47,7 @@ export const mockUsers: User[] = [
     id: 'user_1',
     name: 'Lucas Bueno',
     handle: 'polimata',
+    email: 'lucas@polimata.com',
     avatar: 'https://i.pravatar.cc/150?u=polimata',
     role: 'admin',
     bio: 'Explorador dos mistérios da mente e do universo. Criador de O Polímata Hermético.',
@@ -63,6 +64,7 @@ export const mockUsers: User[] = [
     id: 'user_2',
     name: 'Helena Kaliman',
     handle: 'helena.k',
+    email: 'helena@sanctum.app',
     avatar: 'https://i.pravatar.cc/150?u=helena',
     role: 'moderator',
     bio: 'Leitora obsessiva de Jung. Gêmeos asc. Escorpião.',
@@ -79,6 +81,7 @@ export const mockUsers: User[] = [
     id: 'user_3',
     name: 'Rafael Vance',
     handle: 'rafa.v',
+    email: 'rafael@sanctum.app',
     avatar: 'https://i.pravatar.cc/150?u=rafael',
     role: 'student',
     bio: 'Engenheiro de software buscando o lado oculto do código.',
@@ -95,6 +98,7 @@ export const mockUsers: User[] = [
     id: 'user_4',
     name: 'Clara Aymoré',
     handle: 'clara.a',
+    email: 'clara@sanctum.app',
     avatar: 'https://i.pravatar.cc/150?u=clara',
     role: 'student',
     bio: 'Copywriter em transição para narrativa esotérica.',
@@ -111,6 +115,7 @@ export const mockUsers: User[] = [
     id: 'user_5',
     name: 'Tobias Herrmann',
     handle: 'tobias',
+    email: 'tobias@sanctum.app',
     avatar: 'https://i.pravatar.cc/150?u=tobias',
     role: 'student',
     bio: 'Astrofísico curioso — onde ciência e mistério se tocam.',
@@ -127,6 +132,7 @@ export const mockUsers: User[] = [
     id: 'user_6',
     name: 'Iara Moraes',
     handle: 'iara.m',
+    email: 'iara@sanctum.app',
     avatar: 'https://i.pravatar.cc/150?u=iara',
     role: 'student',
     bio: 'Mãe, psicóloga, buscadora. Peixes solar.',
@@ -143,6 +149,7 @@ export const mockUsers: User[] = [
     id: 'user_7',
     name: 'Danilo Pessoa',
     handle: 'danilo',
+    email: 'danilo@sanctum.app',
     avatar: 'https://i.pravatar.cc/150?u=danilo',
     role: 'student',
     bio: 'Trader que descobriu que mercado é astrologia mal disfarçada.',
@@ -159,6 +166,7 @@ export const mockUsers: User[] = [
     id: 'user_8',
     name: 'Sophia Larsen',
     handle: 'sophia',
+    email: 'sophia@sanctum.app',
     avatar: 'https://i.pravatar.cc/150?u=sophia',
     role: 'student',
     bio: 'Aprendendo a ouvir o que ainda não foi dito.',
@@ -174,22 +182,193 @@ export const mockUsers: User[] = [
 ];
 
 // ---------- Cursos ---------------------------------------------------------
-// Catálogo gerenciado pelo admin. Vazio por padrão — adicione via /admin/cursos.
-// Em produção: substituir por query ao Supabase.
 
-export let mockCourses: Course[] = [];
+const lorem = 'Mergulhamos em conceitos profundos revelados pelos textos herméticos clássicos. As anotações e reflexões devem ser levadas à comunidade para expansão coletiva do conhecimento.';
+
+export const mockCourses: Course[] = [
+  {
+    id: 'course_1',
+    title: 'A Arquitetura da Sincronicidade',
+    subtitle: 'Onde Jung encontra o Kybalion',
+    description: 'Compreenda como a lógica e a magia se entrelaçam no tecido da realidade — e como você pode ler esse tecido.',
+    thumbnail: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=800&auto=format&fit=crop',
+    coverImage: 'https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?q=80&w=1920&auto=format&fit=crop',
+    categoryId: 'hermetismo',
+    instructorId: 'user_1',
+    tags: ['kybalion', 'jung', 'arquetipos'],
+    level: 'intermediario',
+    featured: true,
+    isPublished: true,
+    publishedAt: '2025-09-01T00:00:00Z',
+    totalEnrollments: 1842,
+    ratingAverage: 4.9,
+    ratingCount: 437,
+    modules: [
+      {
+        id: 'mod_1', title: 'Módulo 1: Fundamentos Herméticos', order: 1,
+        lessons: [
+          { id: 'lesson_1', title: 'Introdução ao Caos Ordenado', description: 'Uma visão geral de como perceber padrões onde outros veem acaso.', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', duration: 900, order: 1, resources: [{ id: 'r1', kind: 'pdf', title: 'Anotações da aula', url: '#', sizeBytes: 2_400_000 }], xpReward: 50 },
+          { id: 'lesson_2', title: 'As Leis do Kybalion na Prática', description: 'Aplicando o princípio do mentalismo ao dia a dia.',             videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', duration: 1200, order: 2, resources: [{ id: 'r2', kind: 'pdf', title: 'Mapa dos 7 princípios', url: '#', sizeBytes: 1_800_000 }], xpReward: 60 },
+          { id: 'lesson_3', title: 'O Princípio da Correspondência',  description: '"Como em cima, assim embaixo." Exemplos contemporâneos.',      videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', duration: 1080, order: 3, resources: [], xpReward: 60 },
+        ]
+      },
+      {
+        id: 'mod_2', title: 'Módulo 2: Astrologia Junguiana', order: 2,
+        lessons: [
+          { id: 'lesson_4', title: 'Arquétipos e o Zodíaco',           description: 'Os deuses interiores — o que cada signo quer de você.',        videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', duration: 1500, order: 1, resources: [{ id: 'r3', kind: 'audio', title: 'Meditação guiada', url: '#' }], xpReward: 80 },
+          { id: 'lesson_5', title: 'Sincronicidade como Linguagem',    description: 'Ler símbolos sem cair em superstição.',                         videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', duration: 1320, order: 2, resources: [], xpReward: 70 },
+        ]
+      }
+    ]
+  },
+  {
+    id: 'course_2',
+    title: 'High Thinking',
+    subtitle: 'Metodologia para pensar em sistemas',
+    description: 'Metodologia para superar autossabotagem intelectual e estruturar o pensamento em modelos robustos.',
+    thumbnail: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=800&auto=format&fit=crop',
+    coverImage: 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?q=80&w=1920&auto=format&fit=crop',
+    categoryId: 'high-thinking',
+    instructorId: 'user_1',
+    tags: ['mental-models', 'systems', 'foco'],
+    level: 'avancado',
+    featured: true,
+    isPublished: true,
+    publishedAt: '2025-10-14T00:00:00Z',
+    totalEnrollments: 978,
+    ratingAverage: 4.8,
+    ratingCount: 220,
+    modules: [
+      {
+        id: 'mod_3', title: 'Estruturação', order: 1,
+        lessons: [
+          { id: 'lesson_6', title: 'Modelos Mentais Complexos', description: 'Aprenda a pensar em sistemas, não em linhas.', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', duration: 1800, order: 1, resources: [], xpReward: 100 },
+          { id: 'lesson_7', title: 'Mapas de Causalidade',       description: 'Causa reversa, ciclos viciosos e virtuosos.',   videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', duration: 1500, order: 2, resources: [], xpReward: 90 },
+        ]
+      }
+    ]
+  },
+  {
+    id: 'course_3',
+    title: 'Engenharia de Prompts Hermética',
+    subtitle: 'IA como espelho, não como oráculo',
+    description: 'Prompts estruturados, context engineering e agentes aplicados à jornada intelectual.',
+    thumbnail: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=800&auto=format&fit=crop',
+    coverImage: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1920&auto=format&fit=crop',
+    categoryId: 'ia',
+    instructorId: 'user_1',
+    tags: ['ia', 'prompts', 'agentes'],
+    level: 'intermediario',
+    featured: true,
+    isPublished: true,
+    publishedAt: '2026-01-22T00:00:00Z',
+    totalEnrollments: 612,
+    ratingAverage: 4.95,
+    ratingCount: 98,
+    modules: [
+      {
+        id: 'mod_4', title: 'Fundamentos', order: 1,
+        lessons: [
+          { id: 'lesson_8', title: 'Por que prompt engineering virou context engineering', description: lorem, videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', duration: 1200, order: 1, resources: [], xpReward: 70 },
+          { id: 'lesson_9', title: 'System prompts como constituição',                       description: lorem, videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', duration: 1080, order: 2, resources: [], xpReward: 70 },
+        ]
+      }
+    ]
+  },
+  {
+    id: 'course_4',
+    title: 'Copywriting Arquetípico',
+    subtitle: 'Escrever do oculto',
+    description: 'Narrativa que toca o inconsciente coletivo sem manipular. Arquétipos aplicados à persuasão ética.',
+    thumbnail: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?q=80&w=800&auto=format&fit=crop',
+    coverImage: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?q=80&w=1920&auto=format&fit=crop',
+    categoryId: 'copy',
+    instructorId: 'user_1',
+    tags: ['copy', 'narrativa', 'arquetipos'],
+    level: 'introdutorio',
+    featured: false,
+    isPublished: true,
+    publishedAt: '2025-07-01T00:00:00Z',
+    totalEnrollments: 455,
+    ratingAverage: 4.7,
+    ratingCount: 132,
+    modules: [
+      {
+        id: 'mod_5', title: 'Arquétipos na Prática', order: 1,
+        lessons: [
+          { id: 'lesson_10', title: 'O Mago, o Sábio e o Criador', description: lorem, videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', duration: 1080, order: 1, resources: [], xpReward: 60 },
+          { id: 'lesson_11', title: 'Voz autêntica vs. persona',    description: lorem, videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', duration: 960,  order: 2, resources: [], xpReward: 50 },
+        ]
+      }
+    ]
+  },
+  {
+    id: 'course_5',
+    title: 'Mapa Natal para Adultos',
+    subtitle: 'Astrologia sem neura, sem místico barato',
+    description: 'Leitura profunda de mapa natal via psicologia profunda e observação empírica.',
+    thumbnail: 'https://images.unsplash.com/photo-1502481851512-e9e2529bfbf9?q=80&w=800&auto=format&fit=crop',
+    coverImage: 'https://images.unsplash.com/photo-1502481851512-e9e2529bfbf9?q=80&w=1920&auto=format&fit=crop',
+    categoryId: 'astrologia',
+    instructorId: 'user_1',
+    tags: ['astrologia', 'mapa-natal', 'jung'],
+    level: 'intermediario',
+    featured: false,
+    isPublished: true,
+    publishedAt: '2025-12-05T00:00:00Z',
+    totalEnrollments: 823,
+    ratingAverage: 4.85,
+    ratingCount: 201,
+    modules: [
+      {
+        id: 'mod_6', title: 'Os Planetas Pessoais', order: 1,
+        lessons: [
+          { id: 'lesson_12', title: 'Sol, Lua e Ascendente', description: lorem, videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', duration: 1500, order: 1, resources: [], xpReward: 80 },
+          { id: 'lesson_13', title: 'Mercúrio e Vênus',       description: lorem, videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', duration: 1320, order: 2, resources: [], xpReward: 70 },
+        ]
+      }
+    ]
+  },
+  {
+    id: 'course_6',
+    title: 'Mente Livre',
+    subtitle: 'Desescolarização e autonomia intelectual',
+    description: 'Como estudar por conta própria sem cair em dilettantismo nem em dogma acadêmico.',
+    thumbnail: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?q=80&w=800&auto=format&fit=crop',
+    coverImage: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?q=80&w=1920&auto=format&fit=crop',
+    categoryId: 'livre',
+    instructorId: 'user_1',
+    tags: ['autodidata', 'leitura', 'metodo'],
+    level: 'introdutorio',
+    featured: false,
+    isPublished: true,
+    publishedAt: '2025-04-18T00:00:00Z',
+    totalEnrollments: 1340,
+    ratingAverage: 4.8,
+    ratingCount: 388,
+    modules: [
+      {
+        id: 'mod_7', title: 'Método', order: 1,
+        lessons: [
+          { id: 'lesson_14', title: 'Leitura estrutural vs. leitura informativa', description: lorem, videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', duration: 1080, order: 1, resources: [], xpReward: 60 },
+          { id: 'lesson_15', title: 'Notas Zettelkasten, na prática',             description: lorem, videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', duration: 1200, order: 2, resources: [], xpReward: 60 },
+        ]
+      }
+    ]
+  },
+];
 
 // ---------- Spaces (Circle-style) -----------------------------------------
 
 export const mockSpaces: Space[] = [
-  { id: 'sp_geral',        name: 'Feed Geral',           slug: 'geral',           description: 'O ponto de encontro da Ordem.',              icon: '⚫',  visibility: 'members',  memberCount: 3240, categoryLabel: 'Principal', pinnedPostIds: ['post_1'] },
-  { id: 'sp_avisos',       name: 'Avisos Oficiais',      slug: 'avisos',          description: 'Comunicados do Polímata. Leitura obrigatória.', icon: '📣', visibility: 'members', memberCount: 3240, categoryLabel: 'Principal', pinnedPostIds: [] },
-  { id: 'sp_sincro',       name: 'Sincronicidades',      slug: 'sincronicidades', description: 'Relate eventos significativos. Discussão aberta.', icon: '🜏',  visibility: 'members', memberCount: 1890, categoryLabel: 'Estudos', pinnedPostIds: [] },
-  { id: 'sp_kybalion',     name: 'Práticas do Kybalion', slug: 'kybalion',        description: 'Aplicação dos 7 princípios na rotina.',      icon: '📜', visibility: 'members',  memberCount: 1210, categoryLabel: 'Estudos', pinnedPostIds: ['post_3'] },
-  { id: 'sp_high',         name: 'High Thinking',        slug: 'high-thinking',   description: 'Mental models, foco e execução.',            icon: '🧠', visibility: 'members',  memberCount: 980,  categoryLabel: 'Estudos', pinnedPostIds: [] },
-  { id: 'sp_duvidas',      name: 'Dúvidas & Suporte',    slug: 'duvidas',         description: 'Alunos ajudando alunos. Mods de plantão.',   icon: '❓', visibility: 'members',  memberCount: 2140, categoryLabel: 'Suporte', pinnedPostIds: [] },
-  { id: 'sp_eventos',      name: 'Eventos & Lives',      slug: 'eventos',         description: 'Anúncios e replays de encontros ao vivo.',   icon: '🎙️', visibility: 'members',  memberCount: 2980, categoryLabel: 'Eventos', pinnedPostIds: [] },
-  { id: 'sp_premium',      name: 'Mesa Redonda',         slug: 'mesa-redonda',    description: 'Círculo restrito. Acesso por convite.',      icon: '🗝️', visibility: 'premium',  memberCount: 120,  categoryLabel: 'Premium',  pinnedPostIds: [] },
+  { id: 'sp_geral',        name: 'Feed Geral',           slug: 'geral',           description: 'O ponto de encontro da Ordem.',              icon: '⚫',  visibility: 'members',  memberCount: 3240, categoryLabel: 'Principal' },
+  { id: 'sp_avisos',       name: 'Avisos Oficiais',      slug: 'avisos',          description: 'Comunicados do Sanctum. Leitura obrigatória.', icon: '📣', visibility: 'members', memberCount: 3240, categoryLabel: 'Principal' },
+  { id: 'sp_sincro',       name: 'Sincronicidades',      slug: 'sincronicidades', description: 'Relate eventos significativos. Discussão aberta.', icon: '🜏',  visibility: 'members', memberCount: 1890, categoryLabel: 'Estudos' },
+  { id: 'sp_kybalion',     name: 'Práticas do Kybalion', slug: 'kybalion',        description: 'Aplicação dos 7 princípios na rotina.',      icon: '📜', visibility: 'members',  memberCount: 1210, categoryLabel: 'Estudos' },
+  { id: 'sp_high',         name: 'High Thinking',        slug: 'high-thinking',   description: 'Mental models, foco e execução.',            icon: '🧠', visibility: 'members',  memberCount: 980,  categoryLabel: 'Estudos' },
+  { id: 'sp_duvidas',      name: 'Dúvidas & Suporte',    slug: 'duvidas',         description: 'Alunos ajudando alunos. Mods de plantão.',   icon: '❓', visibility: 'members',  memberCount: 2140, categoryLabel: 'Suporte' },
+  { id: 'sp_eventos',      name: 'Eventos & Lives',      slug: 'eventos',         description: 'Anúncios e replays de encontros ao vivo.',   icon: '🎙️', visibility: 'members',  memberCount: 2980, categoryLabel: 'Eventos' },
+  { id: 'sp_premium',      name: 'Mesa Redonda',         slug: 'mesa-redonda',    description: 'Círculo restrito. Acesso por convite.',      icon: '🗝️', visibility: 'premium',  memberCount: 120,  categoryLabel: 'Premium' },
 ];
 
 // ---------- Posts ---------------------------------------------------------
@@ -289,7 +468,7 @@ export const mockEvents: LiveEvent[] = [
   { id: 'ev_2', title: 'Mentoria High Thinking',        description: 'Revisão dos exercícios da semana.',                       kind: 'mentoria', coverImage: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200&auto=format&fit=crop', hostUserId: 'user_1', startsAt: inDays(5, 19),  durationMinutes: 60, joinUrl: '#', attendeeCount: 87,  maxAttendees: 100 },
   { id: 'ev_3', title: 'Ritual de Lua Nova',            description: 'Prática guiada de intenção e anotação de sonhos.',        kind: 'ritual',   coverImage: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop', hostUserId: 'user_2', startsAt: inDays(9, 21),  durationMinutes: 75, joinUrl: '#', attendeeCount: 140 },
   { id: 'ev_4', title: 'Workshop: Copy Arquetípica',    description: 'Estudo de caso ao vivo com reescrita coletiva.',          kind: 'workshop', coverImage: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?q=80&w=1200&auto=format&fit=crop', hostUserId: 'user_1', startsAt: inDays(14, 20), durationMinutes: 120, joinUrl: '#', attendeeCount: 52, maxAttendees: 80 },
-  { id: 'ev_5', title: 'Q&A do Polímata',               description: 'Pergunte qualquer coisa.',                                 kind: 'live',     coverImage: 'https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?q=80&w=1200&auto=format&fit=crop', hostUserId: 'user_1', startsAt: inDays(22, 20), durationMinutes: 90, joinUrl: '#', attendeeCount: 410, maxAttendees: 1000 },
+  { id: 'ev_5', title: 'Q&A do Sanctum',               description: 'Pergunte qualquer coisa.',                                 kind: 'live',     coverImage: 'https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?q=80&w=1200&auto=format&fit=crop', hostUserId: 'user_1', startsAt: inDays(22, 20), durationMinutes: 90, joinUrl: '#', attendeeCount: 410, maxAttendees: 1000 },
 ];
 
 // ---------- Notificações ---------------------------------------------------
@@ -303,8 +482,13 @@ export const mockNotifications: AppNotification[] = [
 ];
 
 // ---------- Matrículas + Certificados ------------------------------------
-// Em produção: gerenciados via Stripe webhook → Supabase.
 
-export let mockEnrollments: Enrollment[] = [];
+export const mockEnrollments: Enrollment[] = [
+  { id: 'e_1', userId: 'user_1', courseId: 'course_1', enrolledAt: '2025-09-02T00:00:00Z', lastWatchedLessonId: 'lesson_5', lastWatchedAt: hoursAgo(10), completedAt: daysAgo(5) },
+  { id: 'e_2', userId: 'user_1', courseId: 'course_2', enrolledAt: '2025-10-15T00:00:00Z', lastWatchedLessonId: 'lesson_6', lastWatchedAt: hoursAgo(4) },
+  { id: 'e_3', userId: 'user_1', courseId: 'course_3', enrolledAt: '2026-01-23T00:00:00Z', lastWatchedLessonId: 'lesson_8', lastWatchedAt: hoursAgo(26) },
+];
 
-export let mockCertificates: Certificate[] = [];
+export const mockCertificates: Certificate[] = [
+  { id: 'cert_1', userId: 'user_1', courseId: 'course_1', issuedAt: daysAgo(5), credentialCode: 'PHM-2026-AB12CD' },
+];

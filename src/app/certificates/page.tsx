@@ -1,15 +1,15 @@
 import { AppHeader } from '@/components/AppHeader';
 import { CertificateCard } from '@/components/CertificateCard';
-import { getCurrentUser } from '@/core/application/session';
+import { requireUser } from '@/core/application/session';
 import { listCertificates } from '@/core/application/certificates';
 
-export default function CertificatesPage() {
-  const user = getCurrentUser();
+export default async function CertificatesPage() {
+  const user = await requireUser();
   const certs = listCertificates(user.id);
 
   return (
     <div className="min-h-screen">
-      <AppHeader />
+      <AppHeader user={user} />
       <main className="max-w-4xl mx-auto px-6 py-10 pb-20">
         <header className="mb-10">
           <h1 className="text-4xl font-heading font-bold">Certificados</h1>

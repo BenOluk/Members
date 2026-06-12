@@ -37,6 +37,7 @@ export interface User {
   id: string;
   name: string;
   handle: string;               // @lucas
+  email: string;                // login (único)
   avatar: string;
   role: UserRole;
   bio?: string;
@@ -95,21 +96,47 @@ export interface Course {
   subtitle: string;
   description: string;
   thumbnail: string;
-  coverImage: string;
+  coverImage: string;   // cover largo para hero
   categoryId: CourseCategoryId;
   instructorId: string;
   modules: Module[];
   tags: string[];
   level: 'introdutorio' | 'intermediario' | 'avancado';
   featured: boolean;
-  isPublished: boolean;
-  isFree: boolean;
-  price: number;          // BRL cents (0 se isFree)
-  currency: 'BRL';
+  isPublished: boolean;  // só publicado aparece para o aluno
   publishedAt: string;
   totalEnrollments: number;
-  ratingAverage: number;
+  ratingAverage: number; // 0..5
   ratingCount: number;
+}
+
+// Draft usado pelo editor do admin (criação/edição da trilha inteira).
+// Ids presentes preservam progresso dos alunos; ausentes geram novos registros.
+export interface CourseDraft {
+  id?: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  thumbnail: string;
+  coverImage: string;
+  categoryId: CourseCategoryId;
+  instructorId: string;
+  tags: string[];
+  level: Course['level'];
+  featured: boolean;
+  isPublished: boolean;
+  modules: Array<{
+    id?: string;
+    title: string;
+    lessons: Array<{
+      id?: string;
+      title: string;
+      description: string;
+      videoUrl: string;
+      duration: number;   // segundos
+      xpReward: number;
+    }>;
+  }>;
 }
 
 export interface Enrollment {
@@ -143,7 +170,6 @@ export interface Space {
   visibility: SpaceVisibility;
   memberCount: number;
   categoryLabel: string;    // "Estudos", "Principal", "Eventos"
-  pinnedPostIds: string[];
 }
 
 export interface Comment {
