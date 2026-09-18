@@ -13,6 +13,7 @@
     "configure": "node scripts/configure.mjs",
     "backup": "node --env-file-if-exists=.env.local scripts/backup.mjs",
     "restore": "node --env-file-if-exists=.env.local scripts/restore.mjs",
+    "sync:courses": "node --import ./scripts/register.mjs --env-file-if-exists=.env.local scripts/sync-course-catalog.mjs",
     "check": "npm run lint && npm run typecheck && npm test"
   },
   "dependencies": {

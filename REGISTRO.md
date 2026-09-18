@@ -1,5 +1,23 @@
 # Sanctum — registro do projeto
 
+## 18/09/2026 — catálogo real de cursos no Turso
+
+O acervo foi inventariado antes de tocar a produção. Entraram seis estruturas
+canônicas em modo rascunho: `DE VOLTA AO EIXO`, `PNEUMA`, `O Fogo Interior`,
+`AUREUM`, `Fundamentos do Hermetismo` e `IMPULSO`. O antigo `Desafio Super-Homem`
+não entrou porque foi substituído por `DE VOLTA AO EIXO`; esboços com gates,
+serviços e materiais sem fonte relocalizada também ficaram fora.
+
+O comando `npm run sync:courses` sincroniza títulos, módulos e aulas sem duplicar,
+preservando vídeos, capas, checkout e estado de publicação já editados no admin.
+Nenhuma trilha foi publicada automaticamente, nenhuma matrícula foi modificada e
+nenhum documento integral do vault foi enviado ao deploy. AUREUM recebeu apenas
+estrutura editorial e aviso de que não substitui orientação médica.
+
+Spec: `docs/specs/catalogo-inicial-de-cursos.md`. Verificação antes do deploy:
+lint, tipos e 16 testes passaram; duas sincronizações consecutivas criaram e depois
+atualizaram as mesmas seis trilhas no Turso.
+
 ## 18/09/2026 — correção da inicialização no Turso
 
 O site `sanctumone.netlify.app` respondia `503` em `/api/health`. A inspeção dos

@@ -22,7 +22,19 @@ const { consumeLimit } = await import('../src/core/infra/security.ts');
 const { videoSource } = await import('../src/core/domain/media.ts');
 const { validateCourseDraft } = await import('../src/core/domain/course-validation.ts');
 const session = await import('../src/core/infra/repos/sessions.ts');
+const { initialCourseCatalog } = await import('../src/core/infra/course-catalog.ts');
 let admin, student, draft, courseId, lessonId;
+
+test('catálogo editorial contém somente trilhas canônicas, únicas e não vazias', () => {
+  assert.equal(initialCourseCatalog.length, 6);
+  assert.equal(new Set(initialCourseCatalog.map((course) => course.sourceKey)).size, 6);
+  assert.ok(initialCourseCatalog.some((course) => course.title === 'DE VOLTA AO EIXO'));
+  assert.ok(!initialCourseCatalog.some((course) => /Super-Homem/i.test(course.title)));
+  for (const course of initialCourseCatalog) {
+    assert.ok(course.modules.length > 0);
+    assert.ok(course.modules.every((module) => module.lessons.length > 0));
+  }
+});
 
 after(async () => {
   (await ready()).close();
