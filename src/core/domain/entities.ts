@@ -40,6 +40,7 @@ export interface User {
   email: string;                // login (único)
   avatar: string;
   role: UserRole;
+  status?: 'active' | 'suspended';
   bio?: string;
   location?: string;
   joinedAt: string;             // ISO
@@ -104,6 +105,8 @@ export interface Course {
   level: 'introdutorio' | 'intermediario' | 'avancado';
   featured: boolean;
   isPublished: boolean;  // só publicado aparece para o aluno
+  access?: 'open' | 'enrollment';
+  checkoutUrl?: string;
   publishedAt: string;
   totalEnrollments: number;
   ratingAverage: number; // 0..5
@@ -125,6 +128,8 @@ export interface CourseDraft {
   level: Course['level'];
   featured: boolean;
   isPublished: boolean;
+  access?: 'open' | 'enrollment';
+  checkoutUrl?: string;
   modules: Array<{
     id?: string;
     title: string;
@@ -135,6 +140,7 @@ export interface CourseDraft {
       videoUrl: string;
       duration: number;   // segundos
       xpReward: number;
+      resources?: LessonResource[];
     }>;
   }>;
 }
@@ -147,9 +153,12 @@ export interface Enrollment {
   lastWatchedLessonId?: string;
   lastWatchedAt?: string;
   completedAt?: string;
+  expiresAt?: string;
 }
 
 export interface Certificate {
+    recipientName?: string;
+    courseTitle?: string;
   id: string;
   userId: string;
   courseId: string;

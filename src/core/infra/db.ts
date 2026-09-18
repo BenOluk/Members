@@ -1,202 +1,124 @@
-import { DatabaseSync } from 'node:sqlite';
+import { createClient, type Client, type Transaction, type InValue, type InStatement } from '@libsql/client';
+import { AsyncLocalStorage } from 'node:async_hooks';
 import { mkdirSync } from 'node:fs';
 import path from 'node:path';
-import { seedIfEmpty } from './seed';
+import { SCHEMA } from './schema';
+import { seedCatalog } from './seed';
 
-// Singleton sobrevive a hot-reload do dev server via globalThis.
-const globalForDb = globalThis as unknown as { __sanctumDb?: DatabaseSync };
+const context = new AsyncLocalStorage<Transaction>();
+const globalDb = globalThis as unknown as { __sanctumClient?: Client; __sanctumReady?: Promise<Client> };
 
-const SCHEMA = `
-CREATE TABLE IF NOT EXISTS users (
-  id            TEXT PRIMARY KEY,
-  email         TEXT NOT NULL UNIQUE,
-  password_hash TEXT NOT NULL,
-  name          TEXT NOT NULL,
-  handle        TEXT NOT NULL UNIQUE,
-  avatar        TEXT NOT NULL,
-  role          TEXT NOT NULL DEFAULT 'student',
-  bio           TEXT,
-  location      TEXT,
-  joined_at     TEXT NOT NULL,
-  xp            INTEGER NOT NULL DEFAULT 0,
-  streak_current  INTEGER NOT NULL DEFAULT 0,
-  streak_longest  INTEGER NOT NULL DEFAULT 0,
-  last_activity_at TEXT NOT NULL
-);
-CREATE TABLE IF NOT EXISTS sessions (
-  token_hash TEXT PRIMARY KEY,
-  user_id    TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  expires_at TEXT NOT NULL
-);
-CREATE TABLE IF NOT EXISTS badges (
-  id TEXT PRIMARY KEY,
-  name TEXT NOT NULL,
-  description TEXT NOT NULL,
-  icon TEXT NOT NULL,
-  rarity TEXT NOT NULL
-);
-CREATE TABLE IF NOT EXISTS user_badges (
-  user_id  TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  badge_id TEXT NOT NULL REFERENCES badges(id) ON DELETE CASCADE,
-  awarded_at TEXT NOT NULL,
-  PRIMARY KEY (user_id, badge_id)
-);
-CREATE TABLE IF NOT EXISTS user_completed_lessons (
-  user_id   TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  lesson_id TEXT NOT NULL,
-  completed_at TEXT NOT NULL,
-  PRIMARY KEY (user_id, lesson_id)
-);
-CREATE TABLE IF NOT EXISTS follows (
-  follower_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  followee_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  PRIMARY KEY (follower_id, followee_id)
-);
-CREATE TABLE IF NOT EXISTS categories (
-  id TEXT PRIMARY KEY,
-  label TEXT NOT NULL,
-  description TEXT NOT NULL,
-  accent TEXT NOT NULL,
-  sort INTEGER NOT NULL DEFAULT 0
-);
-CREATE TABLE IF NOT EXISTS courses (
-  id          TEXT PRIMARY KEY,
-  title       TEXT NOT NULL,
-  subtitle    TEXT NOT NULL,
-  description TEXT NOT NULL,
-  thumbnail   TEXT NOT NULL,
-  cover_image TEXT NOT NULL,
-  category_id TEXT NOT NULL REFERENCES categories(id),
-  instructor_id TEXT NOT NULL REFERENCES users(id),
-  tags        TEXT NOT NULL DEFAULT '[]',
-  level       TEXT NOT NULL,
-  featured    INTEGER NOT NULL DEFAULT 0,
-  is_published INTEGER NOT NULL DEFAULT 0,
-  published_at TEXT NOT NULL,
-  total_enrollments INTEGER NOT NULL DEFAULT 0,
-  rating_average REAL NOT NULL DEFAULT 0,
-  rating_count INTEGER NOT NULL DEFAULT 0
-);
-CREATE TABLE IF NOT EXISTS modules (
-  id        TEXT PRIMARY KEY,
-  course_id TEXT NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
-  title     TEXT NOT NULL,
-  sort      INTEGER NOT NULL
-);
-CREATE TABLE IF NOT EXISTS lessons (
-  id          TEXT PRIMARY KEY,
-  module_id   TEXT NOT NULL REFERENCES modules(id) ON DELETE CASCADE,
-  title       TEXT NOT NULL,
-  description TEXT NOT NULL,
-  video_url   TEXT NOT NULL,
-  duration    INTEGER NOT NULL,
-  sort        INTEGER NOT NULL,
-  xp_reward   INTEGER NOT NULL
-);
-CREATE TABLE IF NOT EXISTS lesson_resources (
-  id        TEXT PRIMARY KEY,
-  lesson_id TEXT NOT NULL REFERENCES lessons(id) ON DELETE CASCADE,
-  kind      TEXT NOT NULL,
-  title     TEXT NOT NULL,
-  url       TEXT NOT NULL,
-  size_bytes INTEGER
-);
-CREATE TABLE IF NOT EXISTS enrollments (
-  id        TEXT PRIMARY KEY,
-  user_id   TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  course_id TEXT NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
-  enrolled_at TEXT NOT NULL,
-  last_watched_lesson_id TEXT,
-  last_watched_at TEXT,
-  completed_at TEXT,
-  UNIQUE (user_id, course_id)
-);
-CREATE TABLE IF NOT EXISTS certificates (
-  id        TEXT PRIMARY KEY,
-  user_id   TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  course_id TEXT NOT NULL,
-  issued_at TEXT NOT NULL,
-  credential_code TEXT NOT NULL UNIQUE
-);
-CREATE TABLE IF NOT EXISTS spaces (
-  id          TEXT PRIMARY KEY,
-  name        TEXT NOT NULL,
-  slug        TEXT NOT NULL UNIQUE,
-  description TEXT NOT NULL,
-  icon        TEXT NOT NULL,
-  visibility  TEXT NOT NULL DEFAULT 'members',
-  member_count INTEGER NOT NULL DEFAULT 0,
-  category_label TEXT NOT NULL
-);
-CREATE TABLE IF NOT EXISTS posts (
-  id        TEXT PRIMARY KEY,
-  space_id  TEXT NOT NULL REFERENCES spaces(id) ON DELETE CASCADE,
-  author_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  title     TEXT,
-  content   TEXT NOT NULL,
-  created_at TEXT NOT NULL,
-  pinned    INTEGER NOT NULL DEFAULT 0
-);
-CREATE TABLE IF NOT EXISTS post_likes (
-  post_id TEXT NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
-  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  PRIMARY KEY (post_id, user_id)
-);
-CREATE TABLE IF NOT EXISTS comments (
-  id        TEXT PRIMARY KEY,
-  post_id   TEXT NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
-  author_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  content   TEXT NOT NULL,
-  created_at TEXT NOT NULL,
-  likes     INTEGER NOT NULL DEFAULT 0
-);
-CREATE TABLE IF NOT EXISTS events (
-  id          TEXT PRIMARY KEY,
-  title       TEXT NOT NULL,
-  description TEXT NOT NULL,
-  kind        TEXT NOT NULL,
-  cover_image TEXT NOT NULL,
-  host_user_id TEXT NOT NULL REFERENCES users(id),
-  starts_at   TEXT NOT NULL,
-  duration_minutes INTEGER NOT NULL,
-  join_url    TEXT NOT NULL,
-  attendee_count INTEGER NOT NULL DEFAULT 0,
-  max_attendees INTEGER
-);
-CREATE TABLE IF NOT EXISTS notifications (
-  id      TEXT PRIMARY KEY,
-  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  kind    TEXT NOT NULL,
-  title   TEXT NOT NULL,
-  body    TEXT NOT NULL,
-  href    TEXT,
-  read    INTEGER NOT NULL DEFAULT 0,
-  created_at TEXT NOT NULL
-);
-CREATE INDEX IF NOT EXISTS idx_posts_space   ON posts(space_id, created_at);
-CREATE INDEX IF NOT EXISTS idx_comments_post ON comments(post_id, created_at);
-CREATE INDEX IF NOT EXISTS idx_notif_user    ON notifications(user_id, created_at);
-CREATE INDEX IF NOT EXISTS idx_enroll_user   ON enrollments(user_id);
-`;
-
-function open(): DatabaseSync {
-  const dir = path.join(process.cwd(), 'data');
-  mkdirSync(dir, { recursive: true });
-  const db = new DatabaseSync(path.join(dir, 'sanctum.db'));
-  db.exec('PRAGMA journal_mode = WAL');
-  db.exec('PRAGMA foreign_keys = ON');
-  db.exec(SCHEMA);
-  seedIfEmpty(db);
-  return db;
+function client(): Client {
+  if (globalDb.__sanctumClient) return globalDb.__sanctumClient;
+  let url = process.env.TURSO_DATABASE_URL;
+  if (url?.startsWith('file:') && (process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME)) throw new Error('Banco local não é persistente no Netlify. Use libsql:// do Turso.');
+  if (!url) {
+    if (process.env.NETLIFY || process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) throw new Error('Configure TURSO_DATABASE_URL e TURSO_AUTH_TOKEN antes de ativar.');
+    const filename = path.resolve(/* turbopackIgnore: true */ process.env.DATABASE_PATH || 'data/sanctum.db');
+    mkdirSync(/* turbopackIgnore: true */ path.dirname(filename), { recursive: true });
+    url = `file:${filename.replaceAll('\\', '/')}`;
+  }
+  if (process.env.NODE_ENV === 'production' && process.env.DEMO_MODE === 'true') throw new Error('Dados de demonstração não são permitidos em produção.');
+  globalDb.__sanctumClient = createClient({ url, authToken: process.env.TURSO_AUTH_TOKEN });
+  return globalDb.__sanctumClient;
 }
 
-export function getDb(): DatabaseSync {
-  if (!globalForDb.__sanctumDb) {
-    globalForDb.__sanctumDb = open();
+async function initialize(): Promise<Client> {
+  const db = client();
+  const version = await db.execute('PRAGMA user_version');
+  if (Number(version.rows[0]?.user_version) === 1) return db;
+  const tx = await db.transaction('write');
+  try {
+    await tx.executeMultiple(SCHEMA);
+    const addColumn = async (table: string, name: string, definition: string) => {
+      const columns = await tx.execute(`PRAGMA table_info(${table})`);
+      if (!columns.rows.some((r) => r.name === name)) await tx.execute(`ALTER TABLE ${table} ADD COLUMN ${name} ${definition}`);
+    };
+    await addColumn('users', 'status', "TEXT NOT NULL DEFAULT 'active'");
+    await addColumn('courses', 'access', "TEXT NOT NULL DEFAULT 'enrollment'");
+    await addColumn('courses', 'checkout_url', "TEXT NOT NULL DEFAULT ''");
+    await addColumn('enrollments', 'expires_at', 'TEXT');
+    await addColumn('enrollments', 'manual_access', 'INTEGER NOT NULL DEFAULT 1');
+    await addColumn('enrollments', 'blocked', 'INTEGER NOT NULL DEFAULT 0');
+    await addColumn('certificates', 'recipient_name', "TEXT NOT NULL DEFAULT ''");
+    await addColumn('certificates', 'course_title', "TEXT NOT NULL DEFAULT ''");
+    await tx.executeMultiple(`
+      CREATE TABLE IF NOT EXISTS rate_limits (key TEXT PRIMARY KEY, count INTEGER NOT NULL, reset_at INTEGER NOT NULL);
+      CREATE TABLE IF NOT EXISTS password_tokens (token_hash TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE, expires_at TEXT NOT NULL);
+      CREATE TABLE IF NOT EXISTS lesson_notes (user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE, lesson_id TEXT NOT NULL REFERENCES lessons(id) ON DELETE CASCADE, content TEXT NOT NULL, updated_at TEXT NOT NULL, PRIMARY KEY(user_id, lesson_id));
+      CREATE TABLE IF NOT EXISTS audit_log (id TEXT PRIMARY KEY, actor_id TEXT, action TEXT NOT NULL, target_id TEXT, created_at TEXT NOT NULL);
+      CREATE INDEX IF NOT EXISTS idx_sessions_expiry ON sessions(expires_at);
+      CREATE INDEX IF NOT EXISTS idx_rate_expiry ON rate_limits(reset_at);
+      CREATE INDEX IF NOT EXISTS idx_password_expiry ON password_tokens(expires_at);
+      CREATE INDEX IF NOT EXISTS idx_enrollment_course ON enrollments(course_id);
+      CREATE TABLE IF NOT EXISTS hotmart_products (id TEXT PRIMARY KEY, product_id TEXT NOT NULL, offer_code TEXT NOT NULL DEFAULT '', course_id TEXT NOT NULL REFERENCES courses(id) ON DELETE CASCADE, access_days INTEGER NOT NULL DEFAULT 0, UNIQUE(product_id, offer_code, course_id));
+      CREATE TABLE IF NOT EXISTS hotmart_events (id TEXT PRIMARY KEY, event TEXT NOT NULL, transaction_id TEXT, product_id TEXT NOT NULL, created_at INTEGER NOT NULL, processed_at TEXT NOT NULL, outcome TEXT NOT NULL);
+      CREATE TABLE IF NOT EXISTS hotmart_purchases (transaction_id TEXT PRIMARY KEY, product_id TEXT NOT NULL, user_id TEXT REFERENCES users(id), subscriber_code TEXT, status TEXT NOT NULL, event_at INTEGER NOT NULL, approved_at TEXT, expires_at TEXT);
+      CREATE TABLE IF NOT EXISTS access_grants (transaction_id TEXT NOT NULL REFERENCES hotmart_purchases(transaction_id), user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE, course_id TEXT NOT NULL REFERENCES courses(id) ON DELETE CASCADE, expires_at TEXT, revoked INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(transaction_id, course_id));
+      CREATE INDEX IF NOT EXISTS idx_grant_user_course ON access_grants(user_id, course_id, revoked);
+      CREATE INDEX IF NOT EXISTS idx_purchase_subscriber ON hotmart_purchases(subscriber_code, product_id);
+      CREATE TABLE IF NOT EXISTS hotmart_subscriptions (subscriber_code TEXT NOT NULL, product_id TEXT NOT NULL, event_at INTEGER NOT NULL, canceled_at TEXT NOT NULL, paid_until TEXT, PRIMARY KEY(subscriber_code, product_id));
+    `);
+    await context.run(tx, () => seedCatalog(getDb()));
+    await tx.execute('PRAGMA user_version = 1');
+    await tx.commit();
+    return db;
+  } catch (error) {
+    await tx.rollback();
+    throw error;
+  } finally { tx.close(); }
+}
+
+export function ready(): Promise<Client> {
+  if (!globalDb.__sanctumReady) {
+    globalDb.__sanctumReady = initialize().catch((error) => {
+      globalDb.__sanctumReady = undefined;
+      throw error;
+    });
   }
-  return globalForDb.__sanctumDb;
+  return globalDb.__sanctumReady;
+}
+
+async function execute(sql: string, args: InValue[] = []) {
+  const executor = context.getStore() ?? await ready();
+  return executor.execute({ sql, args });
+}
+
+/** Mesmo contrato local/HTTP. Nenhum dado persistido no disco efêmero do Netlify. */
+export function getDb() {
+  return {
+    async batch(statements: InStatement[]) {
+      const executor = context.getStore() ?? await ready();
+      return executor.batch(statements);
+    },
+    prepare(sql: string) {
+      return {
+        async all(...args: InValue[]) { return (await execute(sql, args)).rows as unknown as Record<string, unknown>[]; },
+        async get(...args: InValue[]) { return (await execute(sql, args)).rows[0] as unknown as Record<string, unknown> | undefined; },
+        async run(...args: InValue[]) { const result = await execute(sql, args); return { changes: result.rowsAffected }; },
+      };
+    },
+    async exec(sql: string) {
+      const executor = context.getStore() ?? await ready();
+      await executor.executeMultiple(sql);
+    },
+  };
+}
+
+export async function transaction<T>(fn: () => Promise<T>): Promise<T> {
+  if (context.getStore()) return fn();
+  const db = await ready();
+  const tx = await db.transaction('write');
+  try {
+    const result = await context.run(tx, fn);
+    await tx.commit();
+    return result;
+  } catch (error) {
+    await tx.rollback();
+    throw error;
+  } finally { tx.close(); }
 }
 
 export function newId(prefix: string): string {
-  return `${prefix}_${crypto.randomUUID().replace(/-/g, '').slice(0, 10)}`;
+  return `${prefix}_${crypto.randomUUID().replace(/-/g, '').slice(0, 20)}`;
 }

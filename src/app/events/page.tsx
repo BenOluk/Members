@@ -2,14 +2,11 @@ import { AppHeader } from '@/components/AppHeader';
 import { EventCard } from '@/components/EventCard';
 import { requireUser } from '@/core/application/session';
 import { listUpcomingEvents } from '@/core/application/events';
-
 export default async function EventsPage() {
-  const user = await requireUser();
-  const events = listUpcomingEvents();
-
-  return (
-    <div className="min-h-screen">
-      <AppHeader user={user} active="eventos" />
+    const user = await requireUser();
+    const events = (await listUpcomingEvents());
+    return (<div className="min-h-screen">
+      <AppHeader user={user} active="eventos"/>
       <main className="max-w-6xl mx-auto px-6 py-10 pb-20">
         <header className="mb-10">
           <h1 className="text-4xl font-heading font-bold">Calendário</h1>
@@ -18,14 +15,9 @@ export default async function EventsPage() {
           </p>
         </header>
 
-        {events.length === 0 ? (
-          <p className="text-foreground-muted">Sem eventos futuros agendados.</p>
-        ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {events.map((e) => <EventCard key={e.id} event={e} variant="card" />)}
-          </div>
-        )}
+        {events.length === 0 ? (<p className="text-foreground-muted">Sem eventos futuros agendados.</p>) : (<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {events.map((e) => <EventCard key={e.id} event={e} variant="card"/>)}
+          </div>)}
       </main>
-    </div>
-  );
+    </div>);
 }

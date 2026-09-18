@@ -6,11 +6,9 @@ export function proxy(req: NextRequest) {
   const hasSession = req.cookies.has('sanctum_session');
   const { pathname } = req.nextUrl;
 
-  if (!hasSession && pathname !== '/login') {
+  const publicPath = ['/login', '/setup', '/primeiro-acesso', '/recuperar', '/api/health', '/api/webhooks/hotmart'].includes(pathname);
+  if (!hasSession && !publicPath) {
     return NextResponse.redirect(new URL('/login', req.url));
-  }
-  if (hasSession && pathname === '/login') {
-    return NextResponse.redirect(new URL('/', req.url));
   }
   return NextResponse.next();
 }

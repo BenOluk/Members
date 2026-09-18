@@ -1,0 +1,11 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "24"
+  NEXT_TELEMETRY_DISABLED = "1"
+  NETLIFY_NEXT_SKEW_PROTECTION = "true"
+
+# O adaptador oficial Next.js/OpenNext é detectado automaticamente.
+# Configure as credenciais no painel, nunca neste arquivo.

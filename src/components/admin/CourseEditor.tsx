@@ -23,6 +23,9 @@ const labelCls = 'block text-[11px] uppercase tracking-widest font-bold text-for
 
 export function CourseEditor({ categories, instructorId, course }: CourseEditorProps) {
   const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState('');
+  const [access, setAccess] = useState<'open' | 'enrollment'>(course?.access ?? 'enrollment');
+  const [checkoutUrl, setCheckoutUrl] = useState(course?.checkoutUrl ?? '');
   const [title, setTitle] = useState(course?.title ?? '');
   const [subtitle, setSubtitle] = useState(course?.subtitle ?? '');
   const [description, setDescription] = useState(course?.description ?? '');
@@ -44,6 +47,7 @@ export function CourseEditor({ categories, instructorId, course }: CourseEditorP
         videoUrl: l.videoUrl,
         duration: l.duration,
         xpReward: l.xpReward,
+        resources: l.resources,
       })),
     })) ?? [{ title: 'Módulo 1', lessons: [emptyLesson()] }],
   );
@@ -66,26 +70,28 @@ export function CourseEditor({ categories, instructorId, course }: CourseEditorP
       title: title.trim(),
       subtitle: subtitle.trim(),
       description: description.trim(),
-      thumbnail: thumbnail.trim() || 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=800&auto=format&fit=crop',
-      coverImage: coverImage.trim() || thumbnail.trim() || 'https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?q=80&w=1920&auto=format&fit=crop',
+      thumbnail: thumbnail.trim() || '/course-cover.svg',
+      coverImage: coverImage.trim() || thumbnail.trim() || '/course-cover.svg',
+      access,
+      checkoutUrl: checkoutUrl.trim(),
       categoryId,
       instructorId: course?.instructorId ?? instructorId,
       tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
       level,
       featured,
       isPublished,
-      modules: modules
-        .filter((m) => m.title.trim())
-        .map((m) => ({
+      modules: modules.map((m) => ({
           ...m,
-          lessons: m.lessons.filter((l) => l.title.trim()),
+          lessons: m.lessons,
         })),
     };
-    startTransition(() => saveCourse(draft));
+    setError('');
+    startTransition(async () => { const result = await saveCourse(draft); setError(result?.error ?? ''); });
   };
 
   return (
     <div className="space-y-8">
+      {error && <p role="alert" className="panel text-destructive">{error}</p>}
       {/* Dados da trilha */}
       <section className="bg-surface border border-border rounded-md p-6 space-y-4">
         <h2 className="text-sm font-heading font-bold uppercase tracking-widest text-foreground-muted">Dados da trilha</h2>
@@ -131,6 +137,17 @@ export function CourseEditor({ categories, instructorId, course }: CourseEditorP
           </div>
         </div>
 
+        <div className="grid md:grid-cols-2 gap-4">
+          <label className={labelCls}>Acesso
+            <select className={inputCls} value={access} onChange={(event) => setAccess(event.target.value as 'open' | 'enrollment')}>
+              <option value="enrollment">Matrícula concedida pelo admin ou Hotmart</option>
+              <option value="open">Aberta a todos os membros</option>
+            </select>
+          </label>
+          <label className={labelCls}>Link de inscrição / checkout
+            <input className={inputCls} value={checkoutUrl} onChange={(event) => setCheckoutUrl(event.target.value)} placeholder="https://pay.hotmart.com/..." />
+          </label>
+        </div>
         <div className="flex flex-wrap gap-6 pt-2">
           <label className="flex items-center gap-2 text-sm cursor-pointer">
             <input type="checkbox" checked={featured} onChange={(e) => setFeatured(e.target.checked)} className="accent-[var(--primary)]" />
@@ -168,7 +185,7 @@ export function CourseEditor({ categories, instructorId, course }: CourseEditorP
               />
               <button
                 type="button"
-                onClick={() => setModules((ms) => ms.filter((_, i) => i !== mi))}
+                onClick={() => { if (window.confirm('Remover este módulo e suas aulas ao salvar? Faça um backup antes de excluir conteúdo publicado.')) setModules((ms) => ms.filter((_, i) => i !== mi)); }}
                 className="text-xs text-destructive border border-destructive/40 px-3 py-2 rounded-sm hover:bg-destructive/10 transition-colors flex-shrink-0"
               >
                 Remover
@@ -180,15 +197,15 @@ export function CourseEditor({ categories, instructorId, course }: CourseEditorP
                 <div key={lesson.id ?? `new-${li}`} className="border border-border rounded-sm p-4 bg-background/40 grid md:grid-cols-2 gap-3">
                   <div>
                     <label className={labelCls}>Título da aula *</label>
-                    <input className={inputCls} value={lesson.title} onChange={(e) => updateLesson(mi, li, { title: e.target.value })} />
+                    <input aria-label={`Título da aula ${mi + 1}.${li + 1}`} className={inputCls} value={lesson.title} onChange={(e) => updateLesson(mi, li, { title: e.target.value })} />
                   </div>
                   <div>
                     <label className={labelCls}>URL do vídeo</label>
-                    <input className={inputCls} value={lesson.videoUrl} onChange={(e) => updateLesson(mi, li, { videoUrl: e.target.value })} placeholder="https://..." />
+                    <input aria-label={`URL do vídeo ${mi + 1}.${li + 1}`} className={inputCls} value={lesson.videoUrl} onChange={(e) => updateLesson(mi, li, { videoUrl: e.target.value })} placeholder="https://..." />
                   </div>
                   <div className="md:col-span-2">
                     <label className={labelCls}>Descrição</label>
-                    <input className={inputCls} value={lesson.description} onChange={(e) => updateLesson(mi, li, { description: e.target.value })} />
+                    <input aria-label={`Descrição da aula ${mi + 1}.${li + 1}`} className={inputCls} value={lesson.description} onChange={(e) => updateLesson(mi, li, { description: e.target.value })} />
                   </div>
                   <div className="flex gap-3">
                     <div className="flex-1">
@@ -196,6 +213,7 @@ export function CourseEditor({ categories, instructorId, course }: CourseEditorP
                       <input
                         type="number"
                         min={1}
+                        aria-label={`Duração da aula ${mi + 1}.${li + 1}`}
                         className={inputCls}
                         value={Math.round(lesson.duration / 60)}
                         onChange={(e) => updateLesson(mi, li, { duration: Math.max(1, Number(e.target.value)) * 60 })}
@@ -206,16 +224,29 @@ export function CourseEditor({ categories, instructorId, course }: CourseEditorP
                       <input
                         type="number"
                         min={0}
+                        aria-label={`XP da aula ${mi + 1}.${li + 1}`}
                         className={inputCls}
                         value={lesson.xpReward}
                         onChange={(e) => updateLesson(mi, li, { xpReward: Math.max(0, Number(e.target.value)) })}
                       />
                     </div>
                   </div>
+                  <div className="md:col-span-2 space-y-3">
+                    <p className={labelCls}>Materiais da aula</p>
+                    {(lesson.resources ?? []).map((resource, ri) => <div key={ri} className="flex flex-wrap gap-2">
+                      <input className={`${inputCls} flex-1 min-w-36`} aria-label="Título do material" placeholder="Título" value={resource.title} onChange={(event) => updateLesson(mi, li, { resources: lesson.resources?.map((r, i) => i === ri ? { ...r, title: event.target.value } : r) })} />
+                      <input className={`${inputCls} flex-1 min-w-36`} aria-label="URL do material" placeholder="https://..." value={resource.url} onChange={(event) => updateLesson(mi, li, { resources: lesson.resources?.map((r, i) => i === ri ? { ...r, url: event.target.value } : r) })} />
+                      <select className={inputCls} aria-label="Tipo de material" value={resource.kind} onChange={(event) => updateLesson(mi, li, { resources: lesson.resources?.map((r, i) => i === ri ? { ...r, kind: event.target.value as typeof r.kind } : r) })}>
+                        <option value="pdf">PDF</option><option value="audio">Áudio</option><option value="link">Link</option><option value="exercise">Exercício</option>
+                      </select>
+                      <button type="button" onClick={() => updateLesson(mi, li, { resources: lesson.resources?.filter((_, i) => i !== ri) })}>Remover material</button>
+                    </div>)}
+                    <button type="button" className="text-sm text-primary" onClick={() => updateLesson(mi, li, { resources: [...(lesson.resources ?? []), { id: '', title: '', url: '', kind: 'pdf' }] })}>Adicionar material</button>
+                  </div>
                   <div className="flex items-end justify-end">
                     <button
                       type="button"
-                      onClick={() => updateModule(mi, { lessons: mod.lessons.filter((_, j) => j !== li) })}
+                      onClick={() => { if (window.confirm('Remover esta aula ao salvar?')) updateModule(mi, { lessons: mod.lessons.filter((_, j) => j !== li) }); }}
                       className="text-xs text-foreground-muted hover:text-destructive transition-colors"
                     >
                       Remover aula

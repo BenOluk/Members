@@ -1,20 +1,14 @@
 import type { Metadata } from "next";
-import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
-
-const outfit = Outfit({
-  variable: "--font-outfit",
-  subsets: ["latin"],
-});
+// Área privada: nunca consultar/migrar banco durante pré-renderização do build.
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 export const metadata: Metadata = {
-  title: "Sanctum",
-  description: "Seu espaço privado de aprendizado e ascensão.",
+  title: { default: 'Sanctum · O Polímata Hermético', template: '%s · Sanctum' },
+  description: "Trilhas de estudo, encontros e comunidade do Polímata Hermético.",
+  robots: { index: false, follow: false },
 };
 
 export default function RootLayout({
@@ -25,9 +19,9 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
-      className={`${inter.variable} ${outfit.variable} h-full antialiased dark`}
+      className="h-full antialiased dark"
     >
-      <body className="min-h-full flex flex-col font-sans bg-background text-foreground overflow-x-hidden">
+      <body className="min-h-full flex flex-col font-sans bg-background text-foreground">
         {children}
       </body>
     </html>

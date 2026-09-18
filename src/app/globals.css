@@ -1,23 +1,28 @@
 @import "tailwindcss";
 
+@font-face { font-family: "Source Serif"; src: url('/fonts/source-serif-4-400.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Source Serif"; src: url('/fonts/source-serif-4-600.woff2') format('woff2'); font-weight: 600 900; font-display: swap; }
+@font-face { font-family: "EB Garamond"; src: url('/fonts/eb-garamond-400.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+@font-face { font-family: Cinzel; src: url('/fonts/cinzel-400.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+
 :root {
   /* Deep warm dark — a room of stone and amber candlelight */
-  --background:       oklch(7% 0.012 55);
-  --surface:          oklch(12% 0.016 55);
-  --surface-hover:    oklch(17% 0.020 55);
-  --border:           oklch(22% 0.022 55);
-  --foreground:       oklch(90% 0.012 80);
-  --foreground-muted: oklch(53% 0.010 70);
+  --background:       #0b0906;
+  --surface:          #15120d;
+  --surface-hover:    #211b13;
+  --border:           #423725;
+  --foreground:       #ede5d3;
+  --foreground-muted: #b8ac95;
 
   /* Amber topaz — refined, not metallic */
-  --primary:          oklch(70% 0.110 68);
-  --primary-hover:    oklch(77% 0.090 72);
+  --primary:          #c49840;
+  --primary-hover:    #d4ae68;
 
   /* Deep indigo — reserved for rare/secondary states */
-  --secondary:        oklch(32% 0.090 270);
+  --secondary:        #8a7d6a;
 
   /* Cinnabar — live events and destructive actions only */
-  --destructive:      oklch(57% 0.190 28);
+  --destructive:      #efaaa0;
 }
 
 @theme inline {
@@ -31,11 +36,13 @@
   --color-primary-hover:     var(--primary-hover);
   --color-secondary:         var(--secondary);
   --color-destructive:       var(--destructive);
-  --font-sans:    var(--font-inter), system-ui, sans-serif;
-  --font-heading: var(--font-outfit), system-ui, sans-serif;
+  --font-sans:    "Source Serif", Georgia, serif;
+  --font-heading: "Source Serif", Georgia, serif;
 }
 
 body {
+  font-size: 17px;
+  line-height: 1.65;
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
@@ -55,3 +62,41 @@ body {
   -ms-overflow-style: none;
 }
 .scrollbar-hide::-webkit-scrollbar { display: none; }
+
+::selection { background: #c4984040; color: #ede5d3; }
+:focus-visible { outline: 2px solid var(--primary-hover); outline-offset: 4px; }
+button, summary, select { cursor: pointer; }
+button:disabled { cursor: wait; opacity: .55; }
+input, textarea, select { min-width: 0; max-width: 100%; border: 1px solid var(--border); background: var(--background); color: var(--foreground); padding: .65rem .85rem; border-radius: 3px; font: inherit; }
+input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--primary); }
+label { display: block; }
+input::placeholder, textarea::placeholder { color: var(--foreground-muted); opacity: .7; }
+.page-shell { width: 100%; max-width: 1280px; margin: 0 auto; padding: 3.5rem clamp(1rem, 4vw, 3rem) 7rem; }
+.display-title { font-family: "EB Garamond", Georgia, serif; font-weight: 400; font-size: clamp(2.6rem, 5vw, 4.5rem); line-height: 1.12; letter-spacing: -.015em; }
+.eyebrow { font-family: Cinzel, Georgia, serif; font-size: .72rem; letter-spacing: .18em; color: var(--primary); margin-bottom: 1.2rem; text-transform: uppercase; }
+.panel { padding: clamp(1.1rem, 3vw, 2rem); background: var(--surface); border: 1px solid var(--border); border-radius: 4px; }
+.form-stack { display: grid; gap: 1.2rem; }
+.form-stack label { display: grid; gap: .4rem; }
+.form-stack input, .form-stack textarea, .form-stack select { width: 100%; }
+.button-primary, .button-secondary { display: inline-flex; align-items: center; justify-content: center; padding: .7rem 1.3rem; border-radius: 3px; font-size: .95rem; font-weight: 600; min-height: 44px; text-align: center; transition: background .15s; }
+.button-primary { background: var(--primary); color: var(--background); border: 1px solid var(--primary); }
+.button-primary:hover { background: var(--primary-hover); }
+.button { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: .7rem 1.3rem; border-radius: 3px; background: var(--primary); color: var(--background); font-weight: 600; }
+.button:hover { background: var(--primary-hover); }
+.button-secondary { border: 1px solid var(--border); color: var(--foreground); }
+.button-secondary:hover { background: var(--surface-hover); }
+.auth-shell { min-height: 100dvh; display: grid; place-items: center; padding: 2rem 1rem; background: radial-gradient(ellipse at 10% 0, #c498400b, transparent 70%); }
+.auth-panel { width: 100%; max-width: 520px; border: 1px solid var(--border); padding: clamp(1.5rem, 5vw, 3rem); background: var(--surface); }
+.auth-panel h1 { font: 400 3rem/1.1 "EB Garamond", Georgia, serif; margin-bottom: 1.5rem; }
+th, td { text-align: left; padding: .9rem; border-bottom: 1px solid var(--border); }
+th { font-weight: 600; color: var(--foreground-muted); }
+.mobile-nav { display: none; }
+@media (max-width: 767px) {
+  .mobile-nav { display: flex; position: fixed; bottom: 0; left: 0; right: 0; z-index: 60; justify-content: space-around; background: var(--surface); border-top: 1px solid var(--border); padding: .7rem .3rem max(.7rem, env(safe-area-inset-bottom)); }
+  .mobile-nav a { padding: .25rem .45rem; font-size: .8rem; min-height: 40px; display: grid; place-items: center; }
+  .page-shell { padding-top: 2rem; }
+  .p-10, .p-12 { padding: 1.25rem; }
+  input, textarea, select { font-size: 16px !important; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+@media print { header, nav, .no-print { display: none !important; } body { background: white; color: black; } .certificate-print { background: white; color: black; border: 2px solid #8a7d6a; padding: 3rem; } .certificate-print * { color: black !important; } }

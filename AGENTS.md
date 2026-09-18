@@ -1,77 +1,64 @@
-# Sanctum — Build & Convenções
+# Sanctum — instruções do projeto
 
-## Build
-- Dev: `npm run dev`
-- Build: `npm run build`
-- Lint: `npm run lint`
-- DB local: SQLite em `data/sanctum.db` (gitignored). Criado e populado
-  automaticamente no primeiro acesso. Para resetar: apague a pasta `data/`.
+Leia primeiro `REGISTRO.md` e `docs/specs/prontidao-producao.md`.
+A spec de prontidão prevalece sobre documentos de MVP e PRODUCT.md antigos.
 
-## Login (seed)
-- Admin: `lucas@polimata.com` / senha `sanctum123` (constante `SEED_PASSWORD`
-  em `src/core/infra/seed.ts`).
-- Os demais usuários seed (`helena@sanctum.app`, etc.) usam a mesma senha.
+## Operação
 
-## Arquitetura (Clean Architecture)
+- Node 24; Next.js 16.3.5 / React 19.3.0 / libSQL.
+- Desenvolvimento: `npm run configure`, `npm run dev`.
+- Verificação: `npm run check`, `npm run build`, `npm run smoke`.
+- Produção: Netlify + Turso (libSQL), configurados por variáveis no servidor.
+- Nunca publicar SQLite, .env, backups ou dados reais junto ao código.
+- Não há senha padrão, seed de usuários ou cadastro público.
+- Banco novo: /setup com SETUP_KEY; depois a rota fecha.
+- Nunca apagar data/ para resetar. Testes usam bancos temporários independentes.
 
-```
-src/core/domain/      → entidades + regras puras (streak, níveis). Zero framework.
-src/core/application/ → use cases (leituras síncronas) — única camada que a UI consome.
-src/core/application/actions/ → Server Actions ('use server'): auth, learning,
-                        community, notifications, admin. Toda mutação passa aqui.
-src/core/infra/       → db.ts (node:sqlite, schema embutido), seed.ts, crypto.ts,
-                        repos/* (queries tipadas por agregado).
-src/app/              → rotas App Router. Server Components por padrão.
-src/components/       → componentes reutilizáveis (admin/CourseEditor é o único client).
-src/middleware.ts     → redireciona anônimos para /login (validação real em requireUser).
-docs/specs/           → specs versionadas. Vigente: plataforma-funcional.md.
-```
+## Arquitetura
 
-Regras de ouro:
-- **UI nunca importa `@/core/infra/*`** — sempre via `application/`.
-- **Domain nunca importa framework.**
-- Mutações **sempre** via Server Action com `requireUser()`/`requireAdmin()`
-  no início — nunca confiar só no middleware.
-- Leituras da application são **síncronas** (DatabaseSync); sessão e actions
-  são async.
+`src/core/domain/`: regras puras e entidades.
+`src/core/application/`: casos de uso **assíncronos**.
+`src/core/application/actions/`: Server Actions com autorização antes de agir.
+`src/core/infra/`: libSQL, esquema, criptografia, e-mail e repositórios.
+`src/app/`: páginas server-first e handlers HTTP.
+`src/proxy.ts`: barreira preliminar; cookie presente NÃO significa usuário válido.
 
-## Auth
-- Sessão: cookie httpOnly `sanctum_session`; DB guarda SHA-256 do token
-  (tabela `sessions`, 30 dias). Senhas: scrypt (`infra/crypto.ts`).
-- `requireUser()` redireciona para `/login`; `requireAdmin()` para `/`.
-- Não há cadastro público: contas criadas em `/admin/alunos`.
+Leituras de banco sempre retornam Promise. Mutações compostas usam
+`transaction(async () => ...)`, com contexto isolado em AsyncLocalStorage.
+Use lotes para minimizar round-trips no banco remoto. Não use BEGIN/COMMIT
+manualmente dentro de transações existentes. Migração registrada em user_version;
+uma migração nova deve avançar a versão e preservar os dados anteriores.
 
-## Rotas
+A UI consome application. Domain não importa Next.js. Toda página administrativa
+faz requireAdmin antes de consultar informações; layout não substitui autorização.
+Todo Server Action revalida a sessão. Handlers retornam status sem expor segredos.
 
-| Rota | Acesso | Função |
-|------|--------|--------|
-| `/login` | pública | login |
-| `/` | membro | dashboard Netflix-style |
-| `/meus-cursos` | membro | trilhas matriculadas + progresso |
-| `/course/[courseId]?l=` | membro | player; concluir aula dá XP/streak/badge |
-| `/community`, `/space/[spaceId]` | membro | Ordem: posts, likes, comentários |
-| `/events`, `/notifications`, `/certificates`, `/profile/[userId]`, `/search` | membro | — |
-| `/admin` + subrotas | admin | trilhas (CRUD + editor), membros, espaços, eventos |
+## Segurança e regras de produto
 
-## Padrões de código
-- TailwindCSS 4 — tokens oklch em `globals.css` (`--background`, `--primary`...).
-- Fontes: Outfit (`font-heading`), Inter (`font-sans`).
-- Copy pt-BR. Vocabulário: "trilha", "Ordem", "espaço", "Grão-Mestre",
-  níveis Iniciado/Aprendiz/Adepto/Mestre/Grão-Mestre.
-- `"use client"` só com state/event handler real (hoje: só CourseEditor e error.tsx).
-- Zero `any`. Formulários server-first (`<form action={serverAction}>`).
+- Senhas scrypt; tokens de sessão/reset armazenados apenas como SHA-256.
+- Matrícula preserva progresso. Direitos são união de concessão manual e compras,
+  com bloqueio administrativo prevalecendo. Conta suspensa não acessa.
+- Não exibir vídeo/material sem autorização. Revalidar acesso ao concluir/anotar.
+- Posts restritos: usar listVisiblePosts também no feed, busca e perfis.
+- Hotmart: Hottok, Webhook 2.0.0, deduplicação e direitos por transação.
+- Assinatura requer date_next_charge; não supor período mensal ou acesso perpétuo.
+- Cancelamento preserva período pago; reembolso não remove outra compra válida.
+- E-mail opcional por Resend; sem configuração, link manual. Não enviar teste real
+  sem pedido do operador. Nunca imprimir token, corpo de webhook ou e-mail nos logs.
+- Backup contém dados pessoais e hashes; restauração só em banco vazio.
+- Link de vídeo não é DRM. public/ nunca deve conter conteúdo pago.
+- Espaços premium legados são somente admin/moderador, não tiers pagos.
+- Não declarar conformidade jurídica, alta escala ou deploy externo não verificado.
 
-## Gotchas
-- `node:sqlite` exige Node ≥ 22.5 (estável no 24).
-- Singleton do DB vive em `globalThis.__sanctumDb` (sobrevive ao hot-reload).
-- `listCourses()` devolve só publicadas; admin usa `{ includeUnpublished: true }`.
-- Curso despublicado continua acessível a quem já está matriculado.
-- `completeLesson` é idempotente — o XP nunca duplica.
-- Gamificação: regras puras em `domain/streak.ts` e `domain/levels.ts`;
-  orquestração em `actions/learning.ts`.
+## Visual e conteúdo
 
-## Próximos passos (fora do MVP)
-- Vídeo: Cloudflare Stream/Mux no lugar das URLs externas.
-- Pagamento: Stripe/Hotmart webhook → criar Enrollment.
-- Postgres: trocar implementação de `infra/repos/*` (interfaces preservadas).
-- E-mail transacional (convite, recuperação de senha).
+pt-BR. Obsidiana #0B0906, creme #EDE5D3, ouro #C49840, texto secundário #B8AC95.
+EB Garamond em títulos display, Source Serif no corpo, Cinzel em microrrótulos.
+Fontes locais em public/fonts. Manter foco visível, navegação móvel, reduced-motion.
+Não inventar alunos, cursos, avaliações ou números. Fixtures só em testes isolados.
+
+## Entrega
+
+Atualizar REGISTRO.md com decisões, evidências e pendências de ativação.
+Preservar a versão anterior; não sobrescrever banco, credenciais ou artefatos alheios.
+`scripts/migrate-async.mjs` é histórico de migração única; não executar novamente.

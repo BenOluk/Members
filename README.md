@@ -1,36 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Sanctum · O Polímata Hermético
 
-## Getting Started
+Área de membros própria, preparada para **Netlify + Turso/libSQL + Hotmart**.
+Compras únicas e assinaturas; sem comissão cobrada por este software.
 
-First, run the development server:
+**Comece pelo [guia de ativação](docs/ATIVACAO.md).** Ele reúne publicação, variáveis,
+Hotmart, primeiro acesso, custos, backup e checklist de abertura.
+Não é um ZIP estático para arrastar no Netlify Drop.
 
-```bash
+## O que está incluído
+
+- Instalação protegida, login, contas suspensas, sessões revogáveis e recuperação.
+- Trilhas, módulos, aulas, player externo e materiais complementares.
+- Acesso pago/manual ou trilhas abertas aos membros; vencimento preserva progresso.
+- Progresso, XP, conquistas, caderno privado e certificados imprimíveis.
+- Comunidade, moderação, busca, perfis, notificações e encontros.
+- Administração responsiva, mapeamento de produtos/ofertas e eventos Hotmart.
+- Primeiro acesso por Resend opcional; links manuais quando não houver e-mail.
+- Exportação pessoal, backup/restauração e painel de operação.
+- Identidade obsidiana, creme e ouro; fontes locais; navegação móvel.
+
+Sem alunos, cursos ou métricas de demonstração na primeira instalação.
+O arquivo `seedData.ts` é legado inativo e não é carregado pela aplicação.
+
+## Rodar localmente
+
+Node 24 e npm. Em uma pasta limpa:
+
+```sh
+npm ci
+npm run configure
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abra `http://localhost:3000`. A chave de instalação está em `.env.local`.
+Nenhuma senha de administrador é fornecida ou pré-cadastrada.
+Banco local é só para desenvolvimento; no Netlify configure Turso.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Verificar
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```sh
+npm run check
+npm run build
+npm run smoke
+npm audit
+```
 
-## Learn More
+Smoke: Chrome real, servidor de produção e banco temporário. No Windows usa Chrome
+instalado; em outro ambiente defina `CHROME_PATH` ou instale Chromium pelo Playwright.
+Nenhum teste exige Hotmart/Resend reais ou envia e-mail externo.
 
-To learn more about Next.js, take a look at the following resources:
+## Manter
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+`npm run backup` exporta o banco configurado para `backups/`.
+`npm run restore -- arquivo.json` exige `RESTORE_DATABASE_URL` apontando para um
+**banco novo, vazio**. Leia as restrições e os cuidados no guia.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Pacote de código no Windows: `powershell -NoProfile -File scripts/package.ps1`.
+A lista de inclusão recusa bancos, credenciais, backups e dependências instaladas.
 
-## Deploy on Vercel
+## Documentação
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- [Ativação e operação](docs/ATIVACAO.md)
+- [Spec vigente e pedido consolidado](docs/specs/prontidao-producao.md)
+- [Verificação da entrega](docs/qa/VERIFICACAO.md)
+- [Registro do projeto](REGISTRO.md)
+- [Convenções para futuras alterações](AGENTS.md)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+A publicação e a homologação com contas reais são etapas de ativação.
+Serviços externos têm cotas e podem cobrar; a Hotmart mantém suas taxas.
