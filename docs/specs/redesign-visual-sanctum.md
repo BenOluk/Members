@@ -69,7 +69,7 @@ cor específica fora dos tokens globais.
 - [x] Harmonizar comunidade, eventos, conta e estados vazios.
 - [x] Harmonizar admin sem torná-lo ornamental demais.
 - [x] Testar desktop/mobile, acessibilidade, build e fluxos críticos.
-- [ ] Registrar, versionar e publicar no Netlify.
+- [x] Registrar, versionar e publicar no Netlify.
 
 ## 8. Verification
 

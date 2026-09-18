@@ -17,7 +17,8 @@ ou regra de negócio foi alterada.
 Spec: `docs/specs/redesign-visual-sanctum.md`. Verificação pré-deploy: lint, tipos,
 16 testes, build de produção e smoke Chrome em desktop/mobile aprovados; sem overflow
 em 390 px e sem erro JavaScript. Screenshots em `docs/qa/desktop.png` e
-`docs/qa/mobile.png`.
+`docs/qa/mobile.png`. Publicado no Netlify pelo commit `ec73ecc`; produção confirmou
+HTTP 200 em `/api/health` e `/login`.
 
 ## 18/09/2026 — catálogo real de cursos no Turso
 
