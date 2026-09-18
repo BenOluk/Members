@@ -1,5 +1,18 @@
 # Sanctum — registro do projeto
 
+## 18/09/2026 — publicação no GitHub autorizada
+
+Lucas solicitou atualizar o repositório existente para acionar o Netlify. Antes do
+envio foram confirmados o remoto `https://github.com/BenOluk/Members.git`, a branch
+`main` e as exclusões de `.env.local`, bancos, backups, pacotes, dependências e build.
+A chave local exibida no IDE não constava do commit. Autenticação foi feita pelo
+fluxo oficial de dispositivo do GitHub CLI, sem compartilhar senha ou token.
+
+Commit funcional publicado: `3293007` (`feat: prepara Sanctum para Netlify, Turso e
+Hotmart`). Após o push, `HEAD` e `origin/main` foram comparados e estavam idênticos.
+O push pode acionar o deploy automático do site conectado, mas o estado do painel
+Netlify e suas variáveis não foi inspecionado nesta sessão; verificar no Netlify.
+
 ## 17/09/2026 — entrega local concluída; ativação externa pendente
 
 **Resumo de 30 segundos:** versão 1.0.0 preparada para Netlify + Turso/libSQL,
