@@ -2,78 +2,58 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { Course, CourseProgress } from '@/core/domain/entities';
 import { getCategoryById } from '@/core/application/courses';
+
 interface CourseCardProps {
-    course: Course;
-    variant?: 'wide' | 'tall' | 'compact';
-    progress?: CourseProgress;
+  course: Course;
+  variant?: 'wide' | 'tall' | 'compact';
+  progress?: CourseProgress;
 }
+
+const visuals: Record<string, { number: string; sigil: string }> = {
+  'de-volta-ao-eixo': { number: 'I', sigil: '⊙' },
+  pneuma: { number: 'II', sigil: '◯' },
+  'fogo-interior': { number: 'III', sigil: '△' },
+  aureum: { number: 'IV', sigil: '☿' },
+  'fundamentos-hermetismo': { number: 'V', sigil: '✦' },
+  impulso: { number: 'VI', sigil: '∴' },
+};
+
+function visualFor(course: Course) {
+  const key = course.tags.find((tag) => visuals[tag]);
+  return key ? visuals[key] : { number: '—', sigil: '✦' };
+}
+
 export async function CourseCard({ course, variant = 'wide', progress }: CourseCardProps) {
-    const category = (await getCategoryById(course.categoryId));
-    const lessonCount = course.modules.reduce((a, m) => a + m.lessons.length, 0);
-    if (variant === 'compact') {
-        return (<Link href={`/course/${course.id}`} className="group block min-w-[260px] snap-start border border-border rounded overflow-hidden bg-surface hover:border-primary/40 transition-colors duration-200">
-        <div className="relative h-28">
-          <Image src={course.thumbnail} alt={course.title} fill className="object-cover opacity-80 group-hover:opacity-95 transition-opacity duration-300"/>
-          <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/30 to-transparent"/>
-        </div>
-        <div className="p-3.5">
-          {category && (<span className="text-[10px] uppercase tracking-widest font-bold" style={{ color: category.accent }}>
-              {category.label}
-            </span>)}
-          <h4 className="text-sm font-heading font-semibold mt-1 line-clamp-2 group-hover:text-primary transition-colors duration-200">{course.title}</h4>
-          {progress && progress.percentage > 0 && (<div className="mt-3">
-              <div className="w-full bg-background h-0.5 rounded-full overflow-hidden">
-                <div className="h-full bg-primary transition-all" style={{ width: `${progress.percentage}%` }}/>
-              </div>
-              <p className="text-[10px] text-foreground-muted mt-1.5">
-                {progress.completedLessons}/{progress.totalLessons} aulas — {progress.percentage}%
-              </p>
-            </div>)}
-        </div>
-      </Link>);
-    }
-    if (variant === 'tall') {
-        return (<Link href={`/course/${course.id}`} className="group relative min-w-[200px] aspect-[2/3] snap-start rounded overflow-hidden border border-border hover:border-primary/40 transition-colors duration-200">
-        <Image src={course.thumbnail} alt={course.title} fill className="object-cover transition-transform duration-500 group-hover:scale-105"/>
-        <div className="absolute inset-0 bg-gradient-to-t from-background/98 via-background/40 to-transparent"/>
-        <div className="absolute bottom-0 left-0 right-0 p-4">
-          {category && (<span className="text-[10px] uppercase tracking-widest font-bold block mb-1.5" style={{ color: category.accent }}>
-              {category.label}
-            </span>)}
-          <h4 className="text-sm font-heading font-semibold line-clamp-3 group-hover:text-primary transition-colors duration-200 leading-snug">{course.title}</h4>
-        </div>
-      </Link>);
-    }
-    return (<Link href={`/course/${course.id}`} className="group relative min-w-[320px] h-52 snap-start rounded overflow-hidden border border-border hover:border-primary/40 transition-colors duration-200">
-      <Image src={course.thumbnail} alt={course.title} fill className="object-cover transition-transform duration-500 group-hover:scale-105"/>
-      <div className="absolute inset-0 bg-gradient-to-t from-background/98 via-background/50 to-transparent"/>
-      <div className="absolute inset-y-0 left-0 w-2/3 bg-gradient-to-r from-background/70 to-transparent"/>
+  const category = await getCategoryById(course.categoryId);
+  const lessonCount = course.modules.reduce((total, module) => total + module.lessons.length, 0);
+  const visual = visualFor(course);
+  const hasCustomCover = course.thumbnail && course.thumbnail !== '/course-cover.svg';
 
-      {course.featured && (<div className="absolute top-3 left-3">
-          <span className="bg-primary/90 text-background text-[10px] font-bold px-2 py-0.5 uppercase tracking-wider">
-            Destaque
-          </span>
-        </div>)}
+  if (variant === 'compact') {
+    return <Link href={`/course/${course.id}`} className="group block min-w-[270px] snap-start folio p-5 hover:border-primary/45 transition-colors">
+      <div className="flex items-start justify-between gap-5"><span className="course-plate__number">{visual.number}</span><span className="text-3xl text-primary/45" aria-hidden>{visual.sigil}</span></div>
+      <p className="course-plate__meta mt-7">{category?.label ?? 'Trilha'}</p>
+      <h4 className="text-xl mt-2 leading-tight group-hover:text-primary transition-colors">{course.title}</h4>
+      {progress && <div className="mt-5"><div className="study-progress"><span style={{ width: `${progress.percentage}%` }}/></div><p className="text-xs text-foreground-muted mt-2">{progress.percentage}% concluído</p></div>}
+    </Link>;
+  }
 
-      <div className="absolute bottom-0 left-0 right-0 p-4">
-        {category && (<span className="text-[10px] uppercase tracking-widest font-bold block mb-1.5" style={{ color: category.accent }}>
-            {category.label}
-          </span>)}
-        <h4 className="text-lg font-heading font-bold group-hover:text-primary transition-colors duration-200 leading-snug">{course.title}</h4>
-        <p className="text-xs text-foreground-muted mt-1.5 line-clamp-1">{course.subtitle}</p>
-        <div className="flex items-center gap-4 mt-2.5 text-[11px] text-foreground-muted">
-          <span className="flex items-center gap-1">
-            <svg viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3 text-primary">
-              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.968a1 1 0 00.95.69h4.174c.969 0 1.371 1.24.588 1.81l-3.377 2.455a1 1 0 00-.364 1.118l1.287 3.967c.3.922-.755 1.688-1.54 1.118l-3.377-2.454a1 1 0 00-1.175 0l-3.376 2.454c-.784.57-1.838-.196-1.539-1.118l1.287-3.967a1 1 0 00-.364-1.118L2.05 9.395c-.783-.57-.38-1.81.588-1.81h4.174a1 1 0 00.95-.69l1.287-3.968z"/>
-            </svg>
-            {course.ratingAverage.toFixed(1)}
-          </span>
-          <span>{course.totalEnrollments.toLocaleString('pt-BR')} membros</span>
-          <span>{lessonCount} aulas</span>
-        </div>
-        {progress && progress.percentage > 0 && (<div className="mt-2.5 w-full bg-background/60 h-0.5 rounded-full overflow-hidden">
-            <div className="h-full bg-primary" style={{ width: `${progress.percentage}%` }}/>
-          </div>)}
-      </div>
-    </Link>);
+  if (variant === 'tall') {
+    return <Link href={`/course/${course.id}`} className="group relative min-w-[220px] aspect-[2/3] snap-start course-plate p-6 flex flex-col justify-between" data-sigil={visual.sigil}>
+      {hasCustomCover && <><Image src={course.thumbnail} alt="" fill className="object-cover opacity-25 mix-blend-luminosity"/><div className="absolute inset-0 bg-gradient-to-t from-background via-background/65 to-transparent"/></>}
+      <span className="course-plate__number relative">{visual.number}</span>
+      <div className="relative"><p className="course-plate__meta">{category?.label ?? 'Trilha'}</p><h4 className="course-plate__title mt-3 group-hover:text-primary transition-colors">{course.title}</h4></div>
+    </Link>;
+  }
+
+  return <Link href={`/course/${course.id}`} className="group course-plate min-w-[320px] p-7 flex flex-col justify-between" data-sigil={visual.sigil}>
+    {hasCustomCover && <><Image src={course.thumbnail} alt="" fill className="object-cover opacity-20 mix-blend-luminosity transition-transform duration-700 group-hover:scale-[1.03]"/><div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent"/></>}
+    <div className="relative flex items-start justify-between gap-6"><span className="course-plate__number">{visual.number}</span>{course.featured && <span className="course-plate__meta">Em destaque</span>}</div>
+    <div className="relative mt-10">
+      <p className="course-plate__meta">{category?.label ?? 'Trilha'} · {lessonCount} {lessonCount === 1 ? 'aula' : 'aulas'}</p>
+      <h4 className="course-plate__title mt-3 group-hover:text-primary transition-colors">{course.title}</h4>
+      <p className="text-sm text-foreground-muted mt-3 max-w-md line-clamp-2">{course.subtitle}</p>
+      {progress && <div className="mt-5 max-w-sm"><div className="study-progress"><span style={{ width: `${progress.percentage}%` }}/></div><p className="text-xs text-foreground-muted mt-2">{progress.completedLessons} de {progress.totalLessons} aulas · {progress.percentage}%</p></div>}
+    </div>
+  </Link>;
 }

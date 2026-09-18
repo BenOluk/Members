@@ -23,6 +23,9 @@
 
   /* Cinnabar — live events and destructive actions only */
   --destructive:      #efaaa0;
+  --gold-line:        rgba(196, 152, 64, .18);
+  --gold-faint:       rgba(196, 152, 64, .07);
+  --page-gutter:      clamp(1.1rem, 4vw, 3.5rem);
 }
 
 @theme inline {
@@ -48,7 +51,12 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-image:
+    radial-gradient(circle at 8% -10%, rgba(196,152,64,.075), transparent 28rem),
+    radial-gradient(circle at 96% 18%, rgba(196,152,64,.035), transparent 24rem);
+  background-attachment: fixed;
 }
+body::before { content: ""; position: fixed; inset: 14px; border: 1px solid var(--gold-line); pointer-events: none; z-index: 100; }
 
 /* Scrollbar */
 ::-webkit-scrollbar       { width: 5px; height: 5px; }
@@ -71,14 +79,33 @@ input, textarea, select { min-width: 0; max-width: 100%; border: 1px solid var(-
 input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--primary); }
 label { display: block; }
 input::placeholder, textarea::placeholder { color: var(--foreground-muted); opacity: .7; }
-.page-shell { width: 100%; max-width: 1280px; margin: 0 auto; padding: 3.5rem clamp(1rem, 4vw, 3rem) 7rem; }
+.page-shell { width: 100%; max-width: 1360px; margin: 0 auto; padding: clamp(3rem, 7vw, 6.5rem) var(--page-gutter) 8rem; }
 .display-title { font-family: "EB Garamond", Georgia, serif; font-weight: 400; font-size: clamp(2.6rem, 5vw, 4.5rem); line-height: 1.12; letter-spacing: -.015em; }
-.eyebrow { font-family: Cinzel, Georgia, serif; font-size: .72rem; letter-spacing: .18em; color: var(--primary); margin-bottom: 1.2rem; text-transform: uppercase; }
-.panel { padding: clamp(1.1rem, 3vw, 2rem); background: var(--surface); border: 1px solid var(--border); border-radius: 4px; }
+.eyebrow { font-family: Cinzel, Georgia, serif; font-size: .68rem; letter-spacing: .28em; color: var(--primary); margin-bottom: 1.2rem; text-transform: uppercase; }
+.panel { padding: clamp(1.25rem, 3vw, 2.25rem); background: rgba(21,18,13,.76); border: 1px solid var(--gold-line); border-radius: 1px; }
+.sanctum-frame { position: relative; isolation: isolate; }
+.sanctum-frame::before { content: ""; position: absolute; inset: 0; border: 1px solid var(--gold-line); pointer-events: none; }
+.folio { background: linear-gradient(145deg, rgba(33,27,19,.72), rgba(21,18,13,.52)); border: 1px solid var(--gold-line); box-shadow: inset 0 1px rgba(237,229,211,.025); }
+.ornament-divider { display: flex; align-items: center; gap: .8rem; color: var(--primary); margin: 1.7rem 0; }
+.ornament-divider::before, .ornament-divider::after { content: ""; height: 1px; background: var(--gold-line); flex: 1; }
+.ornament-divider::after { flex: 4; }
+.section-heading { display: grid; grid-template-columns: auto 1fr; align-items: end; gap: 1.5rem; border-bottom: 1px solid var(--gold-line); padding-bottom: 1rem; margin-bottom: 2rem; }
+.section-heading > span { font: 400 clamp(2rem, 4vw, 3.4rem)/.8 "EB Garamond", Georgia, serif; color: rgba(196,152,64,.38); }
+.section-heading h2 { font: 400 clamp(1.8rem, 3vw, 2.7rem)/1.05 "EB Garamond", Georgia, serif; }
+.section-heading p { color: var(--foreground-muted); font-size: .95rem; }
+.hero-grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(280px, .65fr); gap: clamp(3rem, 8vw, 8rem); align-items: end; min-height: 60vh; padding-bottom: clamp(3rem, 7vw, 6rem); border-bottom: 1px solid var(--gold-line); }
+.hero-copy { max-width: 48rem; }
+.hero-copy .display-title { font-size: clamp(3.4rem, 7vw, 6.8rem); max-width: 11ch; }
+.hero-aside { position: relative; padding: 2rem 0 0 2rem; border-left: 1px solid var(--gold-line); }
+.hero-aside::before { content: "✦"; position: absolute; left: -.42rem; top: -.7rem; color: var(--primary); background: var(--background); padding: .1rem; }
+.metric-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--gold-line); margin-top: 2rem; }
+.metric-row > div { background: var(--background); padding: 1rem .75rem; text-align: center; }
+.metric-row strong { display: block; font: 400 2rem/1 "EB Garamond", Georgia, serif; }
+.metric-row span { display: block; color: var(--foreground-muted); font-size: .72rem; margin-top: .4rem; }
 .form-stack { display: grid; gap: 1.2rem; }
 .form-stack label { display: grid; gap: .4rem; }
 .form-stack input, .form-stack textarea, .form-stack select { width: 100%; }
-.button-primary, .button-secondary { display: inline-flex; align-items: center; justify-content: center; padding: .7rem 1.3rem; border-radius: 3px; font-size: .95rem; font-weight: 600; min-height: 44px; text-align: center; transition: background .15s; }
+.button-primary, .button-secondary { display: inline-flex; align-items: center; justify-content: center; padding: .78rem 1.4rem; border-radius: 1px; font-size: .9rem; font-weight: 600; min-height: 46px; text-align: center; transition: background .18s, border-color .18s, color .18s; }
 .button-primary { background: var(--primary); color: var(--background); border: 1px solid var(--primary); }
 .button-primary:hover { background: var(--primary-hover); }
 .button { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: .7rem 1.3rem; border-radius: 3px; background: var(--primary); color: var(--background); font-weight: 600; }
@@ -88,6 +115,20 @@ input::placeholder, textarea::placeholder { color: var(--foreground-muted); opac
 .auth-shell { min-height: 100dvh; display: grid; place-items: center; padding: 2rem 1rem; background: radial-gradient(ellipse at 10% 0, #c498400b, transparent 70%); }
 .auth-panel { width: 100%; max-width: 520px; border: 1px solid var(--border); padding: clamp(1.5rem, 5vw, 3rem); background: var(--surface); }
 .auth-panel h1 { font: 400 3rem/1.1 "EB Garamond", Georgia, serif; margin-bottom: 1.5rem; }
+.course-plate { position: relative; min-height: 15rem; overflow: hidden; border: 1px solid var(--gold-line); background: radial-gradient(circle at 75% 20%, var(--gold-faint), transparent 45%), linear-gradient(145deg, #19150f, #0b0906 70%); }
+.course-plate::before { content: ""; position: absolute; inset: 12px; border: 1px solid var(--gold-line); pointer-events: none; }
+.course-plate::after { content: attr(data-sigil); position: absolute; right: clamp(1rem, 4vw, 2.5rem); top: 50%; transform: translateY(-55%); font: 400 clamp(5rem, 11vw, 8rem)/1 "EB Garamond", Georgia, serif; color: rgba(196,152,64,.09); }
+.course-plate__number { font: 400 2.6rem/1 "EB Garamond", Georgia, serif; color: rgba(196,152,64,.45); }
+.course-plate__title { font: 400 clamp(1.8rem, 3vw, 2.5rem)/1.02 "EB Garamond", Georgia, serif; max-width: 14ch; }
+.course-plate__meta { font-family: Cinzel, Georgia, serif; letter-spacing: .18em; text-transform: uppercase; font-size: .62rem; color: var(--primary); }
+.study-progress { height: 2px; background: var(--gold-line); overflow: hidden; }
+.study-progress > span { display: block; height: 100%; background: var(--primary); }
+.study-layout { background: rgba(11,9,6,.6); }
+.study-sidebar { background: rgba(21,18,13,.82); border-color: var(--gold-line); }
+.study-content { width: 100%; max-width: 880px; padding: clamp(2rem, 5vw, 5rem); }
+.lesson-stage { border-bottom: 1px solid var(--gold-line); background: #070604; }
+.admin-shell { background: linear-gradient(110deg, rgba(196,152,64,.025), transparent 30%); }
+.admin-shell aside { background: rgba(21,18,13,.9); border-color: var(--gold-line); }
 th, td { text-align: left; padding: .9rem; border-bottom: 1px solid var(--border); }
 th { font-weight: 600; color: var(--foreground-muted); }
 .mobile-nav { display: none; }
@@ -95,6 +136,13 @@ th { font-weight: 600; color: var(--foreground-muted); }
   .mobile-nav { display: flex; position: fixed; bottom: 0; left: 0; right: 0; z-index: 60; justify-content: space-around; background: var(--surface); border-top: 1px solid var(--border); padding: .7rem .3rem max(.7rem, env(safe-area-inset-bottom)); }
   .mobile-nav a { padding: .25rem .45rem; font-size: .8rem; min-height: 40px; display: grid; place-items: center; }
   .page-shell { padding-top: 2rem; }
+  body::before { inset: 7px; }
+  .hero-grid { grid-template-columns: 1fr; min-height: auto; gap: 2.5rem; }
+  .hero-copy .display-title { font-size: clamp(3rem, 15vw, 4.7rem); }
+  .hero-aside { padding: 1.5rem 0 0; border-left: 0; border-top: 1px solid var(--gold-line); }
+  .hero-aside::before { left: 0; top: -.75rem; }
+  .section-heading { grid-template-columns: auto 1fr; gap: 1rem; }
+  .course-plate { min-height: 13rem; }
   .p-10, .p-12 { padding: 1.25rem; }
   input, textarea, select { font-size: 16px !important; }
 }

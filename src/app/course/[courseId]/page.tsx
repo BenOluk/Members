@@ -69,16 +69,16 @@ export default async function CoursePage({ params, searchParams }: PageProps) {
     return (<div className="min-h-screen flex flex-col">
       <AppHeader user={user} active="trilhas"/>
 
-      <div className="flex-1 flex flex-col md:flex-row">
+      <div className="study-layout flex-1 flex flex-col md:flex-row">
         {/* Sidebar */}
-        <aside className="w-full md:w-80 border-r border-border bg-surface/70 flex-shrink-0 order-2 md:order-1 md:h-[calc(100vh-57px)] md:sticky md:top-[57px] overflow-y-auto">
+        <aside className="study-sidebar w-full md:w-80 border-r flex-shrink-0 order-2 md:order-1 md:h-[calc(100vh-80px)] md:sticky md:top-20 overflow-y-auto">
           <div className="p-6 border-b border-border">
             {category && (<span className="text-[10px] uppercase tracking-widest font-bold" style={{ color: category.accent }}>
                 {category.label}
               </span>)}
-            <h2 className="text-xl font-heading font-bold mt-1">{course.title}</h2>
+            <h2 className="text-2xl font-heading mt-2 leading-tight">{course.title}</h2>
             <p className="text-xs text-foreground-muted mt-2">{course.subtitle}</p>
-            <div className="w-full bg-background h-1.5 mt-4 rounded-full overflow-hidden">
+            <div className="study-progress mt-5">
               <div className="h-full bg-primary transition-all" style={{ width: `${progress.percentage}%` }}/>
             </div>
             <p className="text-xs text-foreground-muted mt-2">
@@ -87,8 +87,8 @@ export default async function CoursePage({ params, searchParams }: PageProps) {
           </div>
 
           <div className="p-4 space-y-4">
-            {course.modules.map((mod) => (<div key={mod.id} className="border border-border rounded-md overflow-hidden">
-                <div className="bg-surface-hover p-3 border-b border-border font-medium text-sm">{mod.title}</div>
+            {course.modules.map((mod, moduleIndex) => (<div key={mod.id} className="border border-primary/15 overflow-hidden">
+                <div className="bg-surface-hover/50 p-3 border-b border-primary/15 text-sm"><span className="course-plate__meta mr-2">{String(moduleIndex + 1).padStart(2, '0')}</span>{mod.title}</div>
                 <div className="flex flex-col">
                   {mod.lessons.map((lesson) => {
                 const isActive = lesson.id === activeLesson.id;
@@ -116,9 +116,9 @@ export default async function CoursePage({ params, searchParams }: PageProps) {
 
         {/* Main */}
         <main className="flex-1 order-1 md:order-2 min-w-0">
-          <LessonVideo key={activeLesson.id} url={activeLesson.videoUrl} title={activeLesson.title} poster={course.thumbnail}/>
+          <div className="lesson-stage"><LessonVideo key={activeLesson.id} url={activeLesson.videoUrl} title={activeLesson.title} poster={course.thumbnail}/></div>
 
-          <div className="p-8 max-w-4xl">
+          <div className="study-content">
             <div className="flex items-center gap-2 text-xs text-foreground-muted mb-2">
               <span>Aula {activeLesson.order}</span>
               <span>•</span>
@@ -126,7 +126,7 @@ export default async function CoursePage({ params, searchParams }: PageProps) {
               <span>•</span>
               <span>+{activeLesson.xpReward} XP ao concluir</span>
             </div>
-            <h1 className="text-3xl font-heading font-bold mb-4">{activeLesson.title}</h1>
+            <h1 className="display-title !text-[clamp(2.5rem,5vw,4.6rem)] !leading-[1.02] mb-6">{activeLesson.title}</h1>
 
             <div className="flex flex-wrap gap-3 mb-8">
               {!enrollment && (<form action={enroll.bind(null, course.id)}>
@@ -155,7 +155,7 @@ export default async function CoursePage({ params, searchParams }: PageProps) {
                 </Link>)}
             </div>
 
-            <div className="prose prose-invert max-w-none text-foreground-muted">
+            <div className="prose prose-invert max-w-none text-foreground-muted border-t border-primary/15 pt-8">
               <p className="text-lg leading-relaxed">{activeLesson.description}</p>
             </div>
 
@@ -186,8 +186,8 @@ export default async function CoursePage({ params, searchParams }: PageProps) {
                 </div>
               </div>)}
 
-            <section id="caderno" className="panel mt-10">
-              <h2 className="text-2xl font-heading">Seu caderno</h2>
+            <section id="caderno" className="folio mt-12 p-6 md:p-9">
+              <p className="eyebrow">Memória privada</p><h2 className="text-3xl font-heading">Seu caderno</h2>
               <p className="text-sm text-foreground-muted mt-1">Anotações privadas desta aula, visíveis na sua conta.</p>
               {nota && <p role="status" className="text-primary mt-3">{nota === 'salva' ? 'Anotações salvas.' : 'Não foi possível salvar. Confira seu acesso e tente novamente.'}</p>}
               <form action={saveLessonNote.bind(null, course.id, activeLesson.id)} className="form-stack mt-4">

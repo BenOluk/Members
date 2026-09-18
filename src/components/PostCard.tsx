@@ -33,7 +33,7 @@ export async function PostCard({ post, currentUser, showSpace = false }: PostCar
     const liked = post.likedByUserIds.includes(currentUser.id);
     const canModerate = isModerator(currentUser);
     const canDelete = canModerate || post.authorId === currentUser.id;
-    return (<article className="bg-surface border border-border rounded p-5 hover:border-foreground-muted/30 transition-colors duration-200 relative">
+    return (<article className="folio p-5 md:p-7 hover:border-primary/30 transition-colors duration-200 relative">
       {post.pinned && (<span className="absolute top-4 right-4 text-[10px] uppercase tracking-widest font-bold text-primary">
           Fixado
         </span>)}

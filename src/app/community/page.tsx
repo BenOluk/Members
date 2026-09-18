@@ -13,10 +13,10 @@ export default async function CommunityPage() {
       <SpaceSidebar />
 
       <main className="flex-1 min-w-0">
-        <div className="max-w-3xl mx-auto px-4 md:px-8 py-8">
-          <div className="mb-8 flex items-end justify-between">
+        <div className="max-w-4xl mx-auto px-5 md:px-10 py-12 md:py-20">
+          <div className="mb-12 flex items-end justify-between">
             <div>
-              <h2 className="text-3xl font-heading font-bold">A Ordem</h2>
+              <p className="eyebrow">A casa conversa</p><h2 className="display-title !text-[clamp(2.8rem,6vw,5rem)]">A Ordem</h2>
               <p className="text-foreground-muted mt-1">
                 Conversas, perguntas e descobertas dos membros.
               </p>
@@ -24,7 +24,7 @@ export default async function CommunityPage() {
           </div>
 
           {/* Composer */}
-          {writableSpaces.length > 0 && <form action={createPost} className="bg-surface border border-border rounded-lg p-4 mb-8">
+          {writableSpaces.length > 0 && <form action={createPost} className="folio p-5 md:p-7 mb-10">
             <div className="flex gap-4">
               <Avatar user={user} size="md"/>
               <div className="flex-1">

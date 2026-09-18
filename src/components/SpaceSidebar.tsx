@@ -5,7 +5,7 @@ interface SpaceSidebarProps {
 }
 export async function SpaceSidebar({ activeSpaceId }: SpaceSidebarProps) {
     const groups = (await groupedSpaces());
-    return (<aside className="w-full md:w-60 border-b md:border-r border-border bg-surface/40 md:h-[calc(100vh-57px)] md:sticky md:top-[57px] overflow-y-auto scrollbar-hide flex-shrink-0">
+    return (<aside className="study-sidebar w-full md:w-64 border-b md:border-r md:h-[calc(100vh-80px)] md:sticky md:top-20 overflow-y-auto scrollbar-hide flex-shrink-0">
       <div className="px-5 py-6">
         <p className="text-[10px] font-bold text-foreground-muted uppercase tracking-[0.18em] mb-6">A Ordem</p>
 

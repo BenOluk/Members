@@ -1,5 +1,24 @@
 # Sanctum — registro do projeto
 
+## 18/09/2026 — redesign “Biblioteca ritual contemporânea”
+
+Direção visual aprovada por Lucas antes da alteração da versão publicada. O Sanctum
+deixou a composição de dashboard genérico e passou a operar como biblioteca editorial:
+moldura interna, espaço negativo, títulos display em EB Garamond, leitura em Source
+Serif, microtexto em Cinzel e ouro limitado a sinais de hierarquia.
+
+Redesenhados: header e navegação móvel; abertura da biblioteca; frontispícios
+tipográficos distintos para as trilhas; Meus estudos; player, mapa de módulos e
+caderno; superfícies da comunidade, eventos e admin. Capas genéricas deixaram de
+simular imagens: enquanto não houver acervo próprio aprovado, cada curso usa número
+romano e sigilo. Nenhuma imagem de IA foi gerada e nenhuma copy, matrícula, permissão
+ou regra de negócio foi alterada.
+
+Spec: `docs/specs/redesign-visual-sanctum.md`. Verificação pré-deploy: lint, tipos,
+16 testes, build de produção e smoke Chrome em desktop/mobile aprovados; sem overflow
+em 390 px e sem erro JavaScript. Screenshots em `docs/qa/desktop.png` e
+`docs/qa/mobile.png`.
+
 ## 18/09/2026 — catálogo real de cursos no Turso
 
 O acervo foi inventariado antes de tocar a produção. Entraram seis estruturas
