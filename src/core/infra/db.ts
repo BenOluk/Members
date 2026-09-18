@@ -7,6 +7,7 @@ import { seedCatalog } from './seed';
 
 const context = new AsyncLocalStorage<Transaction>();
 const globalDb = globalThis as unknown as { __sanctumClient?: Client; __sanctumReady?: Promise<Client> };
+const SCHEMA_VERSION = 1;
 
 function client(): Client {
   if (globalDb.__sanctumClient) return globalDb.__sanctumClient;
@@ -25,11 +26,15 @@ function client(): Client {
 
 async function initialize(): Promise<Client> {
   const db = client();
-  const version = await db.execute('PRAGMA user_version');
-  if (Number(version.rows[0]?.user_version) === 1) return db;
+  const migrationTable = await db.execute("SELECT 1 FROM sqlite_schema WHERE type='table' AND name='schema_migrations'");
+  if (migrationTable.rows.length) {
+    const migration = await db.execute({ sql: 'SELECT 1 FROM schema_migrations WHERE version = ?', args: [SCHEMA_VERSION] });
+    if (migration.rows.length) return db;
+  }
   const tx = await db.transaction('write');
   try {
     await tx.executeMultiple(SCHEMA);
+    await tx.execute('CREATE TABLE IF NOT EXISTS schema_migrations (version INTEGER PRIMARY KEY, applied_at TEXT NOT NULL)');
     const addColumn = async (table: string, name: string, definition: string) => {
       const columns = await tx.execute(`PRAGMA table_info(${table})`);
       if (!columns.rows.some((r) => r.name === name)) await tx.execute(`ALTER TABLE ${table} ADD COLUMN ${name} ${definition}`);
@@ -60,7 +65,7 @@ async function initialize(): Promise<Client> {
       CREATE TABLE IF NOT EXISTS hotmart_subscriptions (subscriber_code TEXT NOT NULL, product_id TEXT NOT NULL, event_at INTEGER NOT NULL, canceled_at TEXT NOT NULL, paid_until TEXT, PRIMARY KEY(subscriber_code, product_id));
     `);
     await context.run(tx, () => seedCatalog(getDb()));
-    await tx.execute('PRAGMA user_version = 1');
+    await tx.execute({ sql: 'INSERT OR REPLACE INTO schema_migrations (version, applied_at) VALUES (?, ?)', args: [SCHEMA_VERSION, new Date().toISOString()] });
     await tx.commit();
     return db;
   } catch (error) {

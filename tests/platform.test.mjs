@@ -165,6 +165,7 @@ test('backup restaura em banco vazio, preserva dados e não restaura sessões ou
   try {
     await restoreSnapshot(target, snapshot);
     assert.equal((await target.execute('SELECT COUNT(*) AS n FROM users')).rows[0].n, snapshot.tables.users.length);
+    assert.equal((await target.execute('SELECT MAX(version) AS version FROM schema_migrations')).rows[0].version, 1);
     assert.equal((await target.execute('PRAGMA foreign_key_check')).rows.length, 0);
     await assert.rejects(restoreSnapshot(target, snapshot), /vazio/);
     assert.equal((await target.execute('SELECT COUNT(*) AS n FROM users')).rows[0].n, snapshot.tables.users.length);

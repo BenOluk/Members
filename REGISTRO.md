@@ -1,5 +1,18 @@
 # Sanctum — registro do projeto
 
+## 18/09/2026 — correção da inicialização no Turso
+
+O site `sanctumone.netlify.app` respondia `503` em `/api/health`. A inspeção dos
+logs da função confirmou conexão com o Turso, mas rejeição do comando remoto
+`PRAGMA user_version = 1` (`SQL_PARSE_ERROR`). O versionamento do esquema foi
+migrado para a tabela portável `schema_migrations`; backup e restauração também
+deixaram de gravar pragmas. Bancos locais existentes continuam recebendo a
+migração idempotente na primeira abertura.
+
+Verificação local após a correção: lint, tipos e 15 testes passaram; build de
+produção para Netlify passou. Nenhum valor secreto foi impresso durante a
+inspeção das variáveis do projeto.
+
 ## 18/09/2026 — publicação no GitHub autorizada
 
 Lucas solicitou atualizar o repositório existente para acionar o Netlify. Antes do

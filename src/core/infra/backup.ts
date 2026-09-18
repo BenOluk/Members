@@ -8,7 +8,8 @@ export async function createSnapshot(client: Client): Promise<Snapshot> {
   const tx = await client.transaction('read');
   try {
     const schema = await tx.execute("SELECT type,name,sql FROM sqlite_schema WHERE type IN ('table','index') AND name NOT LIKE 'sqlite_%' AND sql IS NOT NULL ORDER BY CASE type WHEN 'table' THEN 0 ELSE 1 END, rowid");
-    const version = Number((await tx.execute('PRAGMA user_version')).rows[0].user_version);
+    const migrations = schema.rows.some((row) => row.type === 'table' && row.name === 'schema_migrations');
+    const version = migrations ? Number((await tx.execute('SELECT COALESCE(MAX(version), 0) AS version FROM schema_migrations')).rows[0].version) : 0;
     const tables: Snapshot['tables'] = {};
     for (const row of schema.rows.filter((row) => row.type === 'table')) {
       const name = String(row.name);
@@ -25,7 +26,6 @@ export async function restoreSnapshot(client: Client, snapshot: Snapshot): Promi
   const tx = await client.transaction('write');
   try {
     if ((await tx.execute("SELECT name FROM sqlite_schema WHERE type='table' AND name NOT LIKE 'sqlite_%'")).rows.length) throw new Error('Restauração recusada: o banco de destino precisa estar vazio.');
-    await tx.execute('PRAGMA defer_foreign_keys = ON');
     for (const sql of snapshot.schema) {
       if (!/^CREATE (TABLE|(?:UNIQUE )?INDEX) /i.test(sql.trim())) throw new Error('Schema inválido');
       await tx.execute(sql);
@@ -40,7 +40,8 @@ export async function restoreSnapshot(client: Client, snapshot: Snapshot): Promi
       }
     }
     if ((await tx.execute('PRAGMA foreign_key_check')).rows.length) throw new Error('Backup com referências inválidas');
-    await tx.execute(`PRAGMA user_version = ${snapshot.version}`);
+    await tx.execute('CREATE TABLE IF NOT EXISTS schema_migrations (version INTEGER PRIMARY KEY, applied_at TEXT NOT NULL)');
+    if (snapshot.version > 0) await tx.execute({ sql: 'INSERT OR REPLACE INTO schema_migrations (version, applied_at) VALUES (?, ?)', args: [snapshot.version, snapshot.createdAt] });
     await tx.commit();
   } catch (error) { await tx.rollback(); throw error; } finally { tx.close(); }
 }
